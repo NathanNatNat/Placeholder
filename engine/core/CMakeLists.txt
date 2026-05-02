@@ -1,6 +1,7 @@
 add_library(placeholder_core STATIC
     src/core.cpp
     src/logging.cpp
+    src/config.cpp
 )
 
 target_include_directories(placeholder_core PUBLIC
