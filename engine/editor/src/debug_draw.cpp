@@ -120,34 +120,43 @@ void DebugDraw::render(const glm::mat4& view, const glm::mat4& projection)
     {
         addGridLines();
     }
-    if (showAxes)
-    {
-        addAxes(glm::vec3(0.0f), 1.0f);
-    }
-
-    if (m_vertices.empty())
-    {
-        return;
-    }
-
-    m_vao->bind();
-    m_vao->setVertexData(m_vertices.data(),
-                         m_vertices.size() * sizeof(Vertex),
-                         renderer::BufferUsage::Dynamic);
 
     m_shader->bind();
     m_shader->setUniformMat4("u_view", glm::value_ptr(view));
     m_shader->setUniformMat4("u_projection", glm::value_ptr(projection));
 
-    m_device.setDepthTest(true);
     m_device.setDepthWrite(false);
     m_device.setBlendEnabled(true);
     m_device.setBlendFunc(renderer::BlendFactor::SrcAlpha,
                           renderer::BlendFactor::OneMinusSrcAlpha);
 
-    m_vao->drawArrays(renderer::PrimitiveTopology::Lines, 0,
-                      static_cast<int>(m_vertices.size()));
+    if (!m_vertices.empty())
+    {
+        m_device.setDepthTest(true);
+        m_vao->bind();
+        m_vao->setVertexData(m_vertices.data(),
+                             m_vertices.size() * sizeof(Vertex),
+                             renderer::BufferUsage::Dynamic);
+        m_vao->drawArrays(renderer::PrimitiveTopology::Lines, 0,
+                          static_cast<int>(m_vertices.size()));
+    }
 
+    if (showAxes)
+    {
+        size_t axesStart = m_vertices.size();
+        addAxes(glm::vec3(0.0f), 1.0f);
+
+        m_device.setDepthTest(false);
+        m_vao->bind();
+        m_vao->setVertexData(m_vertices.data(),
+                             m_vertices.size() * sizeof(Vertex),
+                             renderer::BufferUsage::Dynamic);
+        m_vao->drawArrays(renderer::PrimitiveTopology::Lines,
+                          static_cast<int>(axesStart),
+                          static_cast<int>(m_vertices.size() - axesStart));
+    }
+
+    m_device.setDepthTest(true);
     m_device.setDepthWrite(true);
     m_device.setBlendEnabled(false);
 }
