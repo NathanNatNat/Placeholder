@@ -12,7 +12,7 @@ This document is the authoritative reference for Claude Code when working on the
 
 ## Project Overview
 
-**Placeholder** is a C++ 3D engine focused on loading, rendering, and inspecting World of Warcraft game assets, with a general-purpose engine foundation that can be extended over time. It is not a full game engine yet — the current scope is a WoW model/asset viewer built on solid engine architecture.
+**Placeholder** is a C++ WoW asset viewer and exporter built on solid engine architecture. It loads, renders, and inspects World of Warcraft game assets from CASC archives, similar in purpose to wow.export but implemented as a native C++ application with real-time 3D rendering.
 
 - **License:** MIT
 - **Platform:** Windows x64 only
@@ -104,7 +104,7 @@ pwsh scripts\build.ps1 -Config relwithdebinfo
 pwsh scripts\build.ps1 -Clean
 
 # Run
-.\out\build\windows-msvc-debug\game\placeholder_game.exe
+.\out\build\windows-msvc-debug\viewer\placeholder_viewer.exe
 ```
 
 `scripts\build.ps1` activates the MSVC x64 environment itself via vswhere + VsDevCmd.bat, so it works from any PowerShell session — no Developer PowerShell required. It also strips conflicting GCC toolchains (Strawberry Perl, MSYS2, MinGW) from PATH before cmake runs.
@@ -142,7 +142,7 @@ The engine follows the **layered architecture** from Jason Gregory's *Game Engin
 
 ```
 ┌─────────────────────────────────────┐
-│           Game / Application        │  ← game/, tools/
+│         Viewer / Application         │  ← viewer/, tools/
 ├─────────────────────────────────────┤
 │          WoW Library (wowlib)       │  ← engine/wowlib/  (standalone-ready)
 ├─────────────────────────────────────┤
@@ -236,7 +236,7 @@ Placeholder/
 │       ├── tests/
 │       └── CMakeLists.txt       # Self-contained build — no engine dependencies
 │
-├── game/                        # Application entry point and game-specific code
+├── viewer/                      # Application entry point — WoW asset viewer
 │   └── src/
 │
 ├── tools/                       # Standalone tools (asset converters, etc.)
@@ -248,7 +248,6 @@ Placeholder/
 │   ├── imgui/                   # docking branch
 │   ├── spdlog/
 │   ├── json/                    # nlohmann/json
-│   ├── assimp/
 │   ├── freetype/
 │   ├── msdf-atlas-gen/
 │   ├── stb/
@@ -296,7 +295,6 @@ All dependencies are managed as **git submodules** where possible. For libraries
 | ImGui FreeType | Crisp editor text on 4K displays | Part of ImGui extras |
 | spdlog | Logging (bundles fmt) | Git submodule |
 | nlohmann/json | JSON parsing and serialization | Git submodule |
-| Assimp | Import glTF, OBJ, FBX models | Git submodule |
 | stb | Image loading/writing (stb_image, stb_image_write) | Git submodule |
 | libwebp | WebP image encoding/decoding | Git submodule |
 | FreeType | Font glyph rasterization | Git submodule |
@@ -520,7 +518,7 @@ Two camera modes, switchable at runtime:
 
 ### Current Scope: Basic Skeletal Playback
 
-- Load bone hierarchies from glTF (via Assimp) and WoW M2 format
+- Load bone hierarchies from WoW M2 format
 - Play animation sequences (play, stop, loop, set speed)
 - Transform mesh vertices on the CPU based on bone matrices
 - No animation blending, state machines, or IK (future milestones)

@@ -58,31 +58,15 @@ add_library(glad STATIC third_party/glad/src/gl.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
 add_library(glad::glad ALIAS glad)
 
-# zlib — compression/decompression (BLTE, etc.) — must come before Assimp
+# zlib — compression/decompression (BLTE, etc.)
 set(ZLIB_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(ZLIB_BUILD_SHARED OFF CACHE INTERNAL "")
 set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
 add_subdirectory(third_party/zlib SYSTEM)
 target_include_directories(zlibstatic PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib>
 )
-# Satisfy find_package(ZLIB) for cpp-httplib and Assimp
-set(ZLIB_FOUND TRUE CACHE BOOL "" FORCE)
-set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib;${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib" CACHE STRING "" FORCE)
-set(ZLIB_LIBRARY zlibstatic CACHE STRING "" FORCE)
-set(ZLIB_LIBRARIES zlibstatic CACHE STRING "" FORCE)
-
-# Assimp — 3D model importing (glTF, OBJ, FBX)
-set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_SAMPLES OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "")
-set(ASSIMP_INSTALL OFF CACHE INTERNAL "")
-set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "")
-set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE INTERNAL "")
-set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_ZLIB OFF CACHE INTERNAL "")
-add_subdirectory(third_party/assimp SYSTEM)
 
 # libwebp — WebP image decoding/encoding
 set(WEBP_BUILD_ANIM_UTILS OFF CACHE INTERNAL "")
@@ -167,8 +151,8 @@ add_subdirectory(engine/animation)
 add_subdirectory(engine/editor)
 add_subdirectory(engine/wowlib)
 
-# Game executable
-add_subdirectory(game)
+# Viewer executable
+add_subdirectory(viewer)
 
 # Tests
 if(PLACEHOLDER_BUILD_TESTS)

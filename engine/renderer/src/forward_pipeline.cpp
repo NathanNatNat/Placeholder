@@ -40,8 +40,8 @@ void ForwardPipeline::initialize()
     m_triangleVao->setAttribute(0, 3, VertexAttribType::Float, 24, 0);
     m_triangleVao->setAttribute(1, 3, VertexAttribType::Float, 24, 12);
 
-    m_meshShader = m_shaderManager.createProgram("mesh");
-    m_meshAlphaTestShader = m_shaderManager.createProgram("mesh", {{"ALPHA_TEST", "1"}});
+    m_meshShader = m_shaderManager.createProgram("wow_model");
+    m_meshAlphaTestShader = m_shaderManager.createProgram("wow_model", {{"ALPHA_TEST", "1"}});
 
     m_skybox = std::make_unique<Skybox>(m_device, m_shaderManager);
     m_skybox->initialize();

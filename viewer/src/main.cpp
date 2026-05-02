@@ -9,7 +9,6 @@
 #include "renderer/texture.h"
 #include "renderer/texture_loader.h"
 #include "renderer/mesh.h"
-#include "renderer/mesh_loader.h"
 #include "renderer/material.h"
 #include "input/input_manager.h"
 #include "input/fly_camera.h"
@@ -168,7 +167,7 @@ int main(int argc, char* argv[])
             std::string(PLACEHOLDER_ROOT_DIR) + "/assets/shaders");
 
         shaderManager.registerShader("triangle", {"triangle.vert", "triangle.frag"});
-        shaderManager.registerShader("mesh", {"mesh.vert", "mesh.frag"});
+        shaderManager.registerShader("wow_model", {"wow_model.vert", "wow_model.frag"});
         shaderManager.registerShader("skybox", {"skybox.vert", "skybox.frag"});
         shaderManager.registerShader("debug_line", {"debug_line.vert", "debug_line.frag"});
 
@@ -176,7 +175,6 @@ int main(int argc, char* argv[])
         pipeline.initialize();
 
         placeholder::renderer::TextureLoader textureLoader(renderDevice);
-        placeholder::renderer::MeshLoader meshLoader(renderDevice);
 
         auto whiteTexture = textureLoader.createWhiteTexture();
 
@@ -196,86 +194,11 @@ int main(int argc, char* argv[])
             spdlog::info("Skybox loaded");
         }
 
-        std::unique_ptr<placeholder::renderer::Mesh> loadedMesh;
-        std::vector<placeholder::renderer::Material> materials;
-        std::vector<std::unique_ptr<placeholder::renderer::Texture>> loadedTextures;
-        placeholder::renderer::BoundingBox modelBounds;
-
-        std::string modelPath = config.get<std::string>("model",
-            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/planet/planet.obj");
-
-        if (!modelPath.empty())
-        {
-            auto model = meshLoader.loadFromFile(modelPath);
-            if (model.mesh)
-            {
-                loadedMesh = std::move(model.mesh);
-                modelBounds = model.bounds;
-
-                for (const auto& loadedMat : model.materials)
-                {
-                    placeholder::renderer::Material mat;
-                    mat.diffuseColor = loadedMat.diffuseColor;
-                    mat.opacity = loadedMat.opacity;
-                    mat.diffuseTexture = whiteTexture.get();
-
-                    if (loadedMat.embeddedTextureIndex >= 0
-                        && loadedMat.embeddedTextureIndex < static_cast<int>(model.embeddedTextures.size()))
-                    {
-                        const auto& embTex = model.embeddedTextures[loadedMat.embeddedTextureIndex];
-                        if (!embTex.data.empty())
-                        {
-                            placeholder::renderer::TextureDesc desc;
-                            desc.width = embTex.width;
-                            desc.height = embTex.height;
-                            desc.format = placeholder::renderer::TextureFormat::SRGBA8;
-                            auto tex = textureLoader.createFromData(desc, embTex.data.data());
-                            if (tex)
-                            {
-                                mat.diffuseTexture = tex.get();
-                                loadedTextures.push_back(std::move(tex));
-                            }
-                        }
-                    }
-                    else if (!loadedMat.diffuseTexturePath.empty())
-                    {
-                        auto tex = textureLoader.loadFromFile(loadedMat.diffuseTexturePath);
-                        if (tex)
-                        {
-                            mat.diffuseTexture = tex.get();
-                            loadedTextures.push_back(std::move(tex));
-                        }
-                    }
-
-                    if (loadedMat.opacity < 1.0f)
-                    {
-                        mat.blendMode = placeholder::renderer::BlendMode::AlphaBlend;
-                        mat.depthWrite = false;
-                    }
-
-                    materials.push_back(mat);
-                }
-            }
-        }
-
         placeholder::input::InputManager inputManager;
         inputManager.initialize(config, window);
 
         auto flyCamera = std::make_unique<placeholder::input::FlyCamera>();
         auto orbitCamera = std::make_unique<placeholder::input::OrbitCamera>();
-
-        if (loadedMesh)
-        {
-            glm::vec3 center = modelBounds.center();
-            float radius = modelBounds.radius();
-            float viewDist = radius * 2.5f;
-
-            orbitCamera->setTarget(center);
-            orbitCamera->setDistance(viewDist);
-            orbitCamera->setDistanceLimits(radius * 0.1f, radius * 20.0f);
-
-            flyCamera->setPosition(center + glm::vec3(0.0f, radius * 0.5f, viewDist));
-        }
 
         placeholder::input::Camera* activeCamera = orbitCamera.get();
         bool usingFlyCamera = false;
@@ -375,25 +298,6 @@ int main(int argc, char* argv[])
                 frameCtx.viewportHeight = vpHeight;
                 float vpAspect = static_cast<float>(vpWidth) / static_cast<float>(vpHeight);
                 frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(vpAspect);
-            }
-
-            if (loadedMesh)
-            {
-                for (size_t i = 0; i < loadedMesh->subMeshCount(); ++i)
-                {
-                    placeholder::renderer::RenderItem item;
-                    item.mesh = loadedMesh.get();
-                    item.modelMatrix = glm::mat4(1.0f);
-                    item.subMeshIndex = static_cast<int>(i);
-
-                    uint32_t matIdx = loadedMesh->subMesh(i).materialIndex;
-                    if (matIdx < materials.size())
-                    {
-                        item.material = &materials[matIdx];
-                    }
-
-                    pipeline.submit(item);
-                }
             }
 
             pipeline.execute(frameCtx);

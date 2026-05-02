@@ -10,7 +10,6 @@ add_library(placeholder_renderer STATIC
     src/texture.cpp
     src/texture_loader.cpp
     src/mesh.cpp
-    src/mesh_loader.cpp
     src/material.cpp
     src/skybox.cpp
     src/framebuffer.cpp
@@ -35,7 +34,6 @@ target_sources(placeholder_renderer
             include/renderer/texture.h
             include/renderer/texture_loader.h
             include/renderer/mesh.h
-            include/renderer/mesh_loader.h
             include/renderer/material.h
             include/renderer/skybox.h
             include/renderer/framebuffer.h
@@ -49,5 +47,4 @@ target_link_libraries(placeholder_renderer PUBLIC
     glm::glm
     stb::stb
     webp
-    assimp::assimp
 )

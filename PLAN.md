@@ -74,11 +74,11 @@ Phase 10: Audio, Hot Reload & Polish 🔄🆕
 6. Write root `CMakeLists.txt`:
    - `cmake_minimum_required(VERSION 3.31)`
    - Project name, MSVC x64 enforcement, toolchain file for C++20 standard and compiler flags
-   - Subdirectory includes for each engine module and game
+   - Subdirectory includes for each engine module and viewer
 7. Write `CMakePresets.json` with MSVC x64 presets for Debug, Release, RelWithDebInfo
 8. Write placeholder `CMakeLists.txt` for each engine module (empty static libs with placeholder `.cpp`)
 9. Write `engine/wowlib/CMakeLists.txt` as self-contained (no engine dependencies)
-10. Create `game/src/main.cpp` that prints "Placeholder Engine v0.1" and returns 0
+10. Create `viewer/src/main.cpp` that prints "Placeholder Engine v0.1" and returns 0
 11. Create default `assets/config/engine.json`:
     ```json
     {
@@ -240,8 +240,7 @@ Phase 10: Audio, Hot Reload & Polish 🔄🆕
 1. Build the handle-based resource manager (`ResourceHandle<T>` with generation counter)
 2. Add stb as git submodule → texture loading (PNG, JPG, BMP, TGA)
 3. Add libwebp as git submodule → WebP texture support
-4. Add Assimp as git submodule → glTF, OBJ, FBX mesh loading
-5. Basic material system (`Material` struct: shader, textures, blend mode)
+4. Basic material system (`Material` struct: shader, textures, blend mode)
 6. Basic skybox (cubemap, rendered behind everything)
 7. Render a loaded 3D model with texture — first real scene!
 
