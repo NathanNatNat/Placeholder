@@ -26,6 +26,9 @@ endif()
 
 include(CTest)
 
+# Testing (only when this is the top-level project)
+option(PLACEHOLDER_BUILD_TESTS "Build unit and integration tests" ON)
+
 # Third-party dependencies (SYSTEM suppresses warnings from these targets)
 add_subdirectory(third_party/spdlog SYSTEM)
 
@@ -42,6 +45,13 @@ add_subdirectory(third_party/glfw SYSTEM)
 set(GLM_BUILD_TESTS OFF CACHE INTERNAL "")
 set(GLM_BUILD_INSTALL OFF CACHE INTERNAL "")
 add_subdirectory(third_party/glm SYSTEM)
+
+if(PLACEHOLDER_BUILD_TESTS)
+    set(gtest_force_shared_crt ON CACHE INTERNAL "")
+    set(BUILD_GMOCK OFF CACHE INTERNAL "")
+    set(INSTALL_GTEST OFF CACHE INTERNAL "")
+    add_subdirectory(third_party/googletest SYSTEM)
+endif()
 
 # GLAD2 — OpenGL 4.6 Core loader (generated)
 add_library(glad STATIC third_party/glad/src/gl.c)
@@ -61,3 +71,10 @@ add_subdirectory(engine/wowlib)
 
 # Game executable
 add_subdirectory(game)
+
+# Tests
+if(PLACEHOLDER_BUILD_TESTS)
+    add_subdirectory(engine/core/tests)
+    add_subdirectory(tests/integration)
+    add_subdirectory(tests/render)
+endif()
