@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir D:\\\\Repositories\\\\Placeholder *)",
+      "Bash(cmake --preset=debug)",
+      "Bash(cmake --build --preset=debug)",
+      "Bash(./build/debug/game/Debug/placeholder_game.exe)",
+      "Bash(rm -rf build)",
+      "Bash(cmake --preset=default)",
+      "Bash(./build/game/Debug/placeholder_game.exe)"
+    ]
+  }
+}
