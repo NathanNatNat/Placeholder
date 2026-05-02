@@ -104,6 +104,27 @@ void InputManager::update(platform::Window& window)
             }
         }
 
+        if (down && state.binding.modifierKey >= 0)
+        {
+            down = window.isKeyDown(state.binding.modifierKey);
+        }
+
+        // When no modifier is required, yield to sibling actions that share the
+        // same mouse button but require a modifier that is currently held.
+        if (down && state.binding.modifierKey < 0 && state.binding.mouseButton >= 0)
+        {
+            for (const auto& [otherName, otherState] : m_actions)
+            {
+                if (otherState.binding.modifierKey >= 0 &&
+                    otherState.binding.mouseButton == state.binding.mouseButton &&
+                    window.isKeyDown(otherState.binding.modifierKey))
+                {
+                    down = false;
+                    break;
+                }
+            }
+        }
+
         state.pressedThisFrame = down && !state.wasHeld;
         state.held = down;
         state.wasHeld = down;
@@ -132,17 +153,9 @@ glm::vec2 InputManager::getAxis(const std::string& action) const
     const auto& state = it->second;
     if (state.binding.type != ActionType::Axis) return glm::vec2{0.0f};
 
-    bool modifierHeld = false;
-    if (state.binding.mouseButton >= 0)
-    {
-        modifierHeld = state.held;
-    }
-    else
-    {
-        modifierHeld = true;
-    }
+    if (!state.held) return glm::vec2{0.0f};
 
-    return modifierHeld ? m_mouseDelta : glm::vec2{0.0f};
+    return m_mouseDelta;
 }
 
 void InputManager::addBinding(const ActionBinding& binding)
@@ -206,6 +219,20 @@ void InputManager::loadBindings(const core::Config& config)
                 {
                     binding.mouseButtons.push_back(it->second);
                 }
+            }
+        }
+
+        if (entry.contains("modifierKey"))
+        {
+            std::string keyName = entry["modifierKey"].get<std::string>();
+            auto it = KEY_NAME_TO_GLFW.find(keyName);
+            if (it != KEY_NAME_TO_GLFW.end())
+            {
+                binding.modifierKey = it->second;
+            }
+            else
+            {
+                core::getLogger("input")->warn("Unknown modifier key: {}", keyName);
             }
         }
 

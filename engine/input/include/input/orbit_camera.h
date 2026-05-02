@@ -7,9 +7,10 @@
 namespace placeholder::input
 {
 
-/// Third-person orbit camera that rotates around a target point.
+/// Blender-style orbit camera.
 ///
-/// Right-click drag to rotate, scroll wheel to zoom in/out.
+/// Middle mouse drag to orbit, Shift+middle mouse drag to pan,
+/// scroll wheel to zoom.
 class OrbitCamera : public Camera
 {
 public:
@@ -35,6 +36,7 @@ private:
     float m_minDistance = 1.0f;
     float m_maxDistance = 200.0f;
     float m_orbitSensitivity = 0.2f;
+    float m_panSensitivity = 0.002f;
     float m_zoomSpeed = 1.0f;
 };
 

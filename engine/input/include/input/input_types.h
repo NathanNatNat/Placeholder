@@ -22,6 +22,7 @@ struct ActionBinding
     int key = -1;                       ///< GLFW key code, or -1 if unbound.
     int mouseButton = -1;               ///< Primary GLFW mouse button, or -1 if unbound.
     std::vector<int> mouseButtons;      ///< Additional mouse buttons that also activate this action.
+    int modifierKey = -1;               ///< Required modifier key (e.g. Shift), or -1 for none.
 };
 
 } // namespace placeholder::input

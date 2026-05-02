@@ -13,6 +13,27 @@ OrbitCamera::OrbitCamera() = default;
 
 void OrbitCamera::update(const InputManager& input, float /*deltaTime*/)
 {
+    // Shift+MMB: pan
+    glm::vec2 pan = input.getAxis("Pan");
+    if (pan.x != 0.0f || pan.y != 0.0f)
+    {
+        float yawRad = glm::radians(m_yaw);
+        float pitchRad = glm::radians(m_pitch);
+
+        glm::vec3 forward;
+        forward.x = glm::cos(pitchRad) * glm::cos(yawRad);
+        forward.y = glm::sin(pitchRad);
+        forward.z = glm::cos(pitchRad) * glm::sin(yawRad);
+
+        glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+        glm::vec3 up = glm::normalize(glm::cross(right, forward));
+
+        float panScale = m_distance * m_panSensitivity;
+        m_target -= right * pan.x * panScale;
+        m_target += up * pan.y * panScale;
+    }
+
+    // MMB: orbit
     glm::vec2 look = input.getAxis("Look");
     if (look.x != 0.0f || look.y != 0.0f)
     {
@@ -21,6 +42,7 @@ void OrbitCamera::update(const InputManager& input, float /*deltaTime*/)
         m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
     }
 
+    // Scroll: zoom
     glm::vec2 scroll = input.getScrollDelta();
     if (scroll.y != 0.0f)
     {
