@@ -74,7 +74,7 @@ private:
     bool m_showViewport = true;
     bool m_showScene = true;
     bool m_showProperties = true;
-    bool m_showAssetBrowser = false;
+    bool m_showAssetBrowser = true;
     bool m_showRendererStats = true;
     bool m_showPerformance = true;
 

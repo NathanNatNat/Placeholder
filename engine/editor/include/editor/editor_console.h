@@ -17,7 +17,7 @@ public:
     /// Draw the console window.
     void draw(core::Console& console);
 
-    bool visible = false;
+    bool visible = true;
 
 private:
     static int inputCallback(ImGuiInputTextCallbackData* data);
