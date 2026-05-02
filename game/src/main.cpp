@@ -67,7 +67,8 @@ int main(int argc, char* argv[])
         std::vector<placeholder::renderer::Material> materials;
         std::vector<std::unique_ptr<placeholder::renderer::Texture>> loadedTextures;
 
-        std::string modelPath = config.get<std::string>("model", "");
+        std::string modelPath = config.get<std::string>("model",
+            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/Suzanne.obj");
 
         if (!modelPath.empty())
         {
