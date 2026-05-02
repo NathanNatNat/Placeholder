@@ -1,0 +1,14 @@
+{
+    "window": {
+        "width": 1920,
+        "height": 1080,
+        "title": "Placeholder Engine",
+        "fullscreen": false
+    },
+    "rendering": {
+        "vsync": true
+    },
+    "wow": {
+        "dataPath": ""
+    }
+}
