@@ -28,6 +28,8 @@ class Window
 public:
     using ResizeCallback = std::function<void(int width, int height)>;
     using KeyCallback = std::function<void(int key, int action, int mods)>;
+    using MouseButtonCallback = std::function<void(int button, int action, int mods)>;
+    using ScrollCallback = std::function<void(double xOffset, double yOffset)>;
 
     /// Create and show a window with an OpenGL 4.6 Core context.
     /// @throws std::runtime_error if GLFW or GLAD initialization fails.
@@ -79,6 +81,12 @@ public:
     /// Set a callback for key events (press, release, repeat).
     void setKeyCallback(KeyCallback callback) { m_keyCallback = std::move(callback); }
 
+    /// Set a callback for mouse button events (press, release).
+    void setMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = std::move(callback); }
+
+    /// Set a callback for scroll wheel events.
+    void setScrollCallback(ScrollCallback callback) { m_scrollCallback = std::move(callback); }
+
     /// @return The underlying GLFW window handle (for ImGui, input, etc.).
     GLFWwindow* handle() const { return m_window; }
 
@@ -91,10 +99,15 @@ public:
     /// Get the current cursor position in screen coordinates.
     void getCursorPos(double& x, double& y) const;
 
+    /// Set cursor mode (normal, hidden, or captured for FPS-style look).
+    void setCursorMode(int glfwCursorMode);
+
 private:
     static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
     static void windowContentScaleCallback(GLFWwindow* window, float xScale, float yScale);
     static void keyCallbackDispatch(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void mouseButtonCallbackDispatch(GLFWwindow* window, int button, int action, int mods);
+    static void scrollCallbackDispatch(GLFWwindow* window, double xOffset, double yOffset);
 
     void initGlfw(const WindowConfig& config);
     void initGlad();
@@ -118,6 +131,8 @@ private:
 
     ResizeCallback m_resizeCallback;
     KeyCallback m_keyCallback;
+    MouseButtonCallback m_mouseButtonCallback;
+    ScrollCallback m_scrollCallback;
 };
 
 } // namespace placeholder::platform

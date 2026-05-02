@@ -32,4 +32,5 @@ target_link_libraries(placeholder_renderer PUBLIC
     Placeholder::Platform
     Placeholder::Resources
     glad::glad
+    glm::glm
 )

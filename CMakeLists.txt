@@ -39,6 +39,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "")
 set(GLFW_INSTALL OFF CACHE INTERNAL "")
 add_subdirectory(third_party/glfw SYSTEM)
 
+set(GLM_BUILD_TESTS OFF CACHE INTERNAL "")
+set(GLM_BUILD_INSTALL OFF CACHE INTERNAL "")
+add_subdirectory(third_party/glm SYSTEM)
+
 # GLAD2 — OpenGL 4.6 Core loader (generated)
 add_library(glad STATIC third_party/glad/src/gl.c)
 target_include_directories(glad PUBLIC third_party/glad/include)

@@ -120,6 +120,24 @@ void Window::keyCallbackDispatch(GLFWwindow* glfwWindow, int key, int /*scancode
     }
 }
 
+void Window::mouseButtonCallbackDispatch(GLFWwindow* glfwWindow, int button, int action, int mods)
+{
+    auto* self = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+    if (self && self->m_mouseButtonCallback)
+    {
+        self->m_mouseButtonCallback(button, action, mods);
+    }
+}
+
+void Window::scrollCallbackDispatch(GLFWwindow* glfwWindow, double xOffset, double yOffset)
+{
+    auto* self = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+    if (self && self->m_scrollCallback)
+    {
+        self->m_scrollCallback(xOffset, yOffset);
+    }
+}
+
 // --- Construction / destruction ---
 
 Window::Window(const WindowConfig& config)
@@ -202,6 +220,11 @@ void Window::getCursorPos(double& x, double& y) const
     glfwGetCursorPos(m_window, &x, &y);
 }
 
+void Window::setCursorMode(int glfwCursorMode)
+{
+    glfwSetInputMode(m_window, GLFW_CURSOR, glfwCursorMode);
+}
+
 // --- Initialization helpers ---
 
 void Window::initGlfw(const WindowConfig& config)
@@ -257,6 +280,8 @@ void Window::initGlfw(const WindowConfig& config)
     glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
     glfwSetWindowContentScaleCallback(m_window, windowContentScaleCallback);
     glfwSetKeyCallback(m_window, keyCallbackDispatch);
+    glfwSetMouseButtonCallback(m_window, mouseButtonCallbackDispatch);
+    glfwSetScrollCallback(m_window, scrollCallbackDispatch);
 
     glfwGetFramebufferSize(m_window, &m_framebufferWidth, &m_framebufferHeight);
     glfwGetWindowSize(m_window, &m_windowWidth, &m_windowHeight);
