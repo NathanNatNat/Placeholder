@@ -11,7 +11,19 @@
       "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target all -- 2>&1 | Select-Object -First 50)",
       "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target ALL_BUILD 2>&1)",
       "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --preset default 2>&1)",
-      "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target placeholder_game 2>&1)"
+      "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target placeholder_game 2>&1)",
+      "PowerShell(git submodule *)",
+      "PowerShell(cmake *)",
+      "PowerShell($vsPath = & \"C:\\\\Program Files \\(x86\\)\\\\Microsoft Visual Studio\\\\Installer\\\\vswhere.exe\" -latest -property installationPath 2>$null; if \\($vsPath\\) { \"$vsPath found\" } else { \"vswhere not found, checking common paths\" }; Test-Path \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\"; Test-Path \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\Professional\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\"; Test-Path \"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\2022\\\\BuildTools\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat\")",
+      "Bash(cmd *)",
+      "PowerShell(git add *)",
+      "PowerShell(& cmd /c \"`\"C:\\\\Program Files\\\\Microsoft Visual Studio\\\\18\\\\Community\\\\VC\\\\Auxiliary\\\\Build\\\\vcvars64.bat`\" >nul 2>&1 && cd /d D:\\\\Repositories\\\\Placeholder && cmake --build --preset=debug\" 2>&1)",
+      "PowerShell(& \"D:\\\\Repositories\\\\Placeholder\\\\build\\\\game\\\\placeholder_game.exe\" --window.title=\"Test Title\" 2>&1)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(& cmd /c \"cd /d D:\\\\Repositories\\\\Placeholder && scripts\\\\build.bat\" 2>&1)",
+      "PowerShell(& cmd /c \"cd /d D:\\\\Repositories\\\\Placeholder && scripts\\\\run.bat --window.title=ScriptTest\" 2>&1)",
+      "PowerShell(& cmd /c \"cd /d D:\\\\Repositories\\\\Placeholder && scripts\\\\clean.bat && scripts\\\\configure.bat && scripts\\\\build.bat\" 2>&1)",
+      "PowerShell(& cmd /c \"cd /d D:\\\\Repositories\\\\Placeholder && scripts\\\\run.bat\" 2>&1)"
     ]
   }
 }
