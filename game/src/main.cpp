@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
         std::unique_ptr<placeholder::renderer::Mesh> loadedMesh;
         std::vector<placeholder::renderer::Material> materials;
         std::vector<std::unique_ptr<placeholder::renderer::Texture>> loadedTextures;
+        placeholder::renderer::BoundingBox modelBounds;
 
         std::string modelPath = config.get<std::string>("model",
             std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/Duck.glb");
@@ -76,6 +77,7 @@ int main(int argc, char* argv[])
             if (model.mesh)
             {
                 loadedMesh = std::move(model.mesh);
+                modelBounds = model.bounds;
 
                 for (const auto& loadedMat : model.materials)
                 {
@@ -128,6 +130,19 @@ int main(int argc, char* argv[])
 
         auto flyCamera = std::make_unique<placeholder::input::FlyCamera>();
         auto orbitCamera = std::make_unique<placeholder::input::OrbitCamera>();
+
+        if (loadedMesh)
+        {
+            glm::vec3 center = modelBounds.center();
+            float radius = modelBounds.radius();
+            float viewDist = radius * 2.5f;
+
+            orbitCamera->setTarget(center);
+            orbitCamera->setDistance(viewDist);
+
+            flyCamera->setPosition(center + glm::vec3(0.0f, radius * 0.5f, viewDist));
+        }
+
         placeholder::input::Camera* activeCamera = orbitCamera.get();
         bool usingFlyCamera = false;
 

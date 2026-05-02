@@ -213,6 +213,17 @@ LoadedModel MeshLoader::loadFromFile(const std::string& path)
 
     result.mesh = std::make_unique<Mesh>(Mesh::create(m_device, meshData));
 
+    if (!meshData.vertices.empty())
+    {
+        result.bounds.min = meshData.vertices[0].position;
+        result.bounds.max = meshData.vertices[0].position;
+        for (const auto& v : meshData.vertices)
+        {
+            result.bounds.min = glm::min(result.bounds.min, v.position);
+            result.bounds.max = glm::max(result.bounds.max, v.position);
+        }
+    }
+
     logger->info("Loaded model '{}': {} vertices, {} indices, {} submeshes, {} materials, {} embedded textures",
                  path, meshData.vertices.size(), meshData.indices.size(),
                  meshData.subMeshes.size(), result.materials.size(),

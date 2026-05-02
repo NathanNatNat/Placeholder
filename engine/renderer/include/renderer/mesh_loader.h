@@ -2,6 +2,9 @@
 
 #include "mesh.h"
 
+#include <glm/common.hpp>
+#include <glm/geometric.hpp>
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -32,12 +35,24 @@ struct LoadedMaterial
     float opacity = 1.0f;
 };
 
+/// Axis-aligned bounding box.
+struct BoundingBox
+{
+    glm::vec3 min{0.0f};
+    glm::vec3 max{0.0f};
+
+    glm::vec3 center() const { return (min + max) * 0.5f; }
+    glm::vec3 extents() const { return (max - min) * 0.5f; }
+    float radius() const { return glm::length(extents()); }
+};
+
 /// Result of loading a model file.
 struct LoadedModel
 {
     std::unique_ptr<Mesh> mesh;
     std::vector<LoadedMaterial> materials;
     std::vector<EmbeddedTexture> embeddedTextures;
+    BoundingBox bounds;
 };
 
 /// Loads 3D models from disk via Assimp (glTF, OBJ, FBX, etc.).
