@@ -57,7 +57,7 @@ private:
 
     std::vector<std::string> m_history;
     std::vector<std::string> m_output;
-    mutable std::mutex m_mutex;
+    mutable std::recursive_mutex m_mutex;
 
     static constexpr size_t MAX_HISTORY = 256;
 };
