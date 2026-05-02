@@ -9,7 +9,10 @@ uniform vec3 u_diffuseColor;
 uniform float u_opacity;
 uniform vec3 u_lightDir;
 uniform vec3 u_lightColor;
-uniform vec3 u_ambientColor;
+uniform vec3 u_skyColor;
+uniform vec3 u_groundColor;
+uniform vec3 u_fillLightDir;
+uniform vec3 u_fillLightColor;
 
 #ifdef ALPHA_TEST
 uniform float u_alphaThreshold;
@@ -29,8 +32,16 @@ void main()
 #endif
 
     vec3 normal = normalize(v_normal);
-    float diffuse = max(dot(normal, -u_lightDir), 0.0);
-    vec3 lighting = u_ambientColor + u_lightColor * diffuse;
+
+    float skyBlend = normal.y * 0.5 + 0.5;
+    vec3 ambient = mix(u_groundColor, u_skyColor, skyBlend);
+
+    float keyDiffuse = max(dot(normal, -u_lightDir), 0.0);
+    float fillDiffuse = max(dot(normal, -u_fillLightDir), 0.0);
+
+    vec3 lighting = ambient
+                  + u_lightColor * keyDiffuse
+                  + u_fillLightColor * fillDiffuse;
 
     fragColor = vec4(color * lighting, alpha);
 }

@@ -102,9 +102,12 @@ void ForwardPipeline::geometryPass(const FrameContext& ctx)
 
     if (!m_renderQueue.empty())
     {
-        glm::vec3 lightDir = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.5f));
-        glm::vec3 lightColor{1.0f, 0.98f, 0.95f};
-        glm::vec3 ambientColor{0.15f, 0.15f, 0.2f};
+        glm::vec3 lightDir = glm::normalize(glm::vec3(-0.5f, -0.8f, -0.3f));
+        glm::vec3 lightColor{0.9f, 0.88f, 0.85f};
+        glm::vec3 skyColor{0.65f, 0.7f, 0.75f};
+        glm::vec3 groundColor{0.3f, 0.28f, 0.25f};
+        glm::vec3 fillLightDir = glm::normalize(glm::vec3(0.4f, 0.5f, 0.6f));
+        glm::vec3 fillLightColor{0.35f, 0.35f, 0.38f};
 
         for (const auto& item : m_renderQueue)
         {
@@ -136,7 +139,10 @@ void ForwardPipeline::geometryPass(const FrameContext& ctx)
             shader->setUniform("u_opacity", item.material->opacity);
             shader->setUniformVec3("u_lightDir", &lightDir.x);
             shader->setUniformVec3("u_lightColor", &lightColor.x);
-            shader->setUniformVec3("u_ambientColor", &ambientColor.x);
+            shader->setUniformVec3("u_skyColor", &skyColor.x);
+            shader->setUniformVec3("u_groundColor", &groundColor.x);
+            shader->setUniformVec3("u_fillLightDir", &fillLightDir.x);
+            shader->setUniformVec3("u_fillLightColor", &fillLightColor.x);
 
             if (item.material->blendMode == BlendMode::AlphaTest)
             {

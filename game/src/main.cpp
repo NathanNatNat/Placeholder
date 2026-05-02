@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
         placeholder::renderer::BoundingBox modelBounds;
 
         std::string modelPath = config.get<std::string>("model",
-            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/Duck.glb");
+            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/planet/planet.obj");
 
         if (!modelPath.empty())
         {

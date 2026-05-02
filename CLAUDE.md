@@ -398,6 +398,7 @@ This is the most unique part of the engine. The WoW library reads World of Warcr
 - **https://github.com/Kruithne/wow.export** — Original JS wow.export (functional reference)
 - **https://github.com/Deamon87/WebWowViewerCpp** — C++ WoW model viewer (rendering reference)
 - **https://github.com/Marlamin/wow.tools.local** — Local WoW data tools (DB2 parsing reference)
+- **https://github.com/JoeyDeVries/LearnOpenGL** — Excellent OpenGL learning resource with tutorials, sample code, and test models
 - Other repositories by these developers should also be consulted
 
 ### BLP Texture Loader
