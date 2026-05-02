@@ -6,8 +6,8 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 
 ## Phase Progress
 
-- [ ] Phase 0: Project Bootstrap
-- [ ] Phase 1: Core Systems
+- [x] Phase 0: Project Bootstrap
+- [x] Phase 1: Core Systems
 - [ ] Phase 2: Platform & Window
 - [ ] Phase 3: Renderer Foundation
 - [ ] Phase 4: Input & Camera
