@@ -10,6 +10,7 @@
 
 #include <glm/mat4x4.hpp>
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -56,6 +57,12 @@ public:
     /// Toggle wireframe rendering.
     bool wireframeEnabled = false;
 
+    /// Callback invoked during the debug pass (for debug draw, gizmos, etc.).
+    std::function<void(const FrameContext&)> onDebugPass;
+
+    /// Callback invoked during the ImGui pass (for editor rendering).
+    std::function<void(const FrameContext&)> onImGuiPass;
+
 private:
     void clearPass(const FrameContext& ctx);
     void geometryPass(const FrameContext& ctx);
@@ -73,8 +80,6 @@ private:
     std::unique_ptr<Skybox> m_skybox;
 
     std::vector<RenderItem> m_renderQueue;
-
-    bool m_stubsLogged = false;
 };
 
 } // namespace placeholder::renderer

@@ -193,22 +193,19 @@ void ForwardPipeline::skyboxPass(const FrameContext& ctx)
     }
 }
 
-void ForwardPipeline::debugPass(const FrameContext& /*ctx*/)
+void ForwardPipeline::debugPass(const FrameContext& ctx)
 {
-    if (!m_stubsLogged)
+    if (onDebugPass)
     {
-        auto logger = core::getLogger("renderer");
-        logger->trace("Debug pass: stub");
+        onDebugPass(ctx);
     }
 }
 
-void ForwardPipeline::imguiPass(const FrameContext& /*ctx*/)
+void ForwardPipeline::imguiPass(const FrameContext& ctx)
 {
-    if (!m_stubsLogged)
+    if (onImGuiPass)
     {
-        auto logger = core::getLogger("renderer");
-        logger->trace("ImGui pass: stub");
-        m_stubsLogged = true;
+        onImGuiPass(ctx);
     }
 }
 

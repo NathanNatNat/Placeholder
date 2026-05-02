@@ -1,5 +1,6 @@
 #include "core/logging.h"
 #include "core/config.h"
+#include "core/console.h"
 #include "platform/window.h"
 #include "renderer/opengl_render_device.h"
 #include "renderer/shader_manager.h"
@@ -14,6 +15,8 @@
 #include "input/fly_camera.h"
 #include "input/orbit_camera.h"
 #include "input/camera.h"
+#include "editor/editor.h"
+#include "editor/debug_draw.h"
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
@@ -26,6 +29,112 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+static void registerConsoleCommands(placeholder::core::Console& console,
+                                    placeholder::renderer::ForwardPipeline& pipeline,
+                                    placeholder::renderer::ShaderManager& shaderManager,
+                                    placeholder::editor::DebugDraw& debugDraw,
+                                    placeholder::editor::Editor& editor,
+                                    bool& usingFlyCamera,
+                                    placeholder::input::Camera*& activeCamera,
+                                    placeholder::input::FlyCamera* flyCamera,
+                                    placeholder::input::OrbitCamera* orbitCamera)
+{
+    console.registerCommand("wireframe", "Toggle wireframe rendering [on|off]",
+        [&pipeline](const std::vector<std::string>& args) -> std::string
+        {
+            if (!args.empty())
+            {
+                pipeline.wireframeEnabled = (args[0] == "on" || args[0] == "1" || args[0] == "true");
+            }
+            else
+            {
+                pipeline.wireframeEnabled = !pipeline.wireframeEnabled;
+            }
+            return std::string("Wireframe: ") + (pipeline.wireframeEnabled ? "on" : "off");
+        });
+
+    console.registerCommand("camera", "Switch camera mode [fly|orbit]",
+        [&usingFlyCamera, &activeCamera, flyCamera, orbitCamera]
+        (const std::vector<std::string>& args) -> std::string
+        {
+            if (!args.empty())
+            {
+                usingFlyCamera = (args[0] == "fly");
+            }
+            else
+            {
+                usingFlyCamera = !usingFlyCamera;
+            }
+            activeCamera = usingFlyCamera
+                ? static_cast<placeholder::input::Camera*>(flyCamera)
+                : static_cast<placeholder::input::Camera*>(orbitCamera);
+            return std::string("Camera: ") + (usingFlyCamera ? "fly" : "orbit");
+        });
+
+    console.registerCommand("reload", "Reload all shaders from disk",
+        [&shaderManager](const std::vector<std::string>&) -> std::string
+        {
+            shaderManager.reloadAll();
+            return "Shaders reloaded";
+        });
+
+    console.registerCommand("grid", "Toggle debug grid [on|off]",
+        [&debugDraw](const std::vector<std::string>& args) -> std::string
+        {
+            if (!args.empty())
+            {
+                debugDraw.showGrid = (args[0] == "on" || args[0] == "1" || args[0] == "true");
+            }
+            else
+            {
+                debugDraw.showGrid = !debugDraw.showGrid;
+            }
+            return std::string("Grid: ") + (debugDraw.showGrid ? "on" : "off");
+        });
+
+    console.registerCommand("axes", "Toggle debug axes [on|off]",
+        [&debugDraw](const std::vector<std::string>& args) -> std::string
+        {
+            if (!args.empty())
+            {
+                debugDraw.showAxes = (args[0] == "on" || args[0] == "1" || args[0] == "true");
+            }
+            else
+            {
+                debugDraw.showAxes = !debugDraw.showAxes;
+            }
+            return std::string("Axes: ") + (debugDraw.showAxes ? "on" : "off");
+        });
+
+    console.registerCommand("debug", "Toggle all debug drawing [on|off]",
+        [&debugDraw](const std::vector<std::string>& args) -> std::string
+        {
+            if (!args.empty())
+            {
+                debugDraw.enabled = (args[0] == "on" || args[0] == "1" || args[0] == "true");
+            }
+            else
+            {
+                debugDraw.enabled = !debugDraw.enabled;
+            }
+            return std::string("Debug drawing: ") + (debugDraw.enabled ? "on" : "off");
+        });
+
+    console.registerCommand("demo", "Toggle ImGui demo window",
+        [&editor](const std::vector<std::string>&) -> std::string
+        {
+            editor.showDemoWindow = !editor.showDemoWindow;
+            return std::string("Demo window: ") + (editor.showDemoWindow ? "on" : "off");
+        });
+
+    console.registerCommand("clear", "Clear console output",
+        [&console](const std::vector<std::string>&) -> std::string
+        {
+            console.clearOutput();
+            return "";
+        });
+}
 
 int main(int argc, char* argv[])
 {
@@ -55,6 +164,7 @@ int main(int argc, char* argv[])
         shaderManager.registerShader("triangle", {"triangle.vert", "triangle.frag"});
         shaderManager.registerShader("mesh", {"mesh.vert", "mesh.frag"});
         shaderManager.registerShader("skybox", {"skybox.vert", "skybox.frag"});
+        shaderManager.registerShader("debug_line", {"debug_line.vert", "debug_line.frag"});
 
         placeholder::renderer::ForwardPipeline pipeline(renderDevice, shaderManager);
         pipeline.initialize();
@@ -164,8 +274,33 @@ int main(int argc, char* argv[])
         placeholder::input::Camera* activeCamera = orbitCamera.get();
         bool usingFlyCamera = false;
 
-        window.setKeyCallback([&window](int key, int action, int /*mods*/)
+        placeholder::editor::Editor editor;
+        editor.initialize(window.handle(), window.dpiScale(), PLACEHOLDER_ROOT_DIR);
+
+        placeholder::editor::DebugDraw debugDraw(renderDevice, shaderManager);
+        debugDraw.initialize();
+
+        placeholder::core::Console console;
+        registerConsoleCommands(console, pipeline, shaderManager, debugDraw, editor,
+                               usingFlyCamera, activeCamera,
+                               flyCamera.get(), orbitCamera.get());
+
+        pipeline.onDebugPass = [&debugDraw](const placeholder::renderer::FrameContext& ctx)
         {
+            debugDraw.render(ctx.viewMatrix, ctx.projectionMatrix);
+        };
+
+        pipeline.onImGuiPass = [&editor](const placeholder::renderer::FrameContext&)
+        {
+            editor.renderDrawData();
+        };
+
+        window.setKeyCallback([&window, &editor](int key, int action, int /*mods*/)
+        {
+            if (editor.wantsKeyboard())
+            {
+                return;
+            }
             if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
             {
                 window.requestClose();
@@ -185,24 +320,30 @@ int main(int argc, char* argv[])
             lastTime = currentTime;
 
             window.pollEvents();
+            editor.beginFrame();
+
             inputManager.update(window);
 
-            if (inputManager.isTriggered("ToggleWireframe"))
+            if (!editor.wantsKeyboard())
             {
-                pipeline.wireframeEnabled = !pipeline.wireframeEnabled;
-                spdlog::info("Wireframe: {}", pipeline.wireframeEnabled ? "on" : "off");
+                if (inputManager.isTriggered("ToggleWireframe"))
+                {
+                    pipeline.wireframeEnabled = !pipeline.wireframeEnabled;
+                }
+
+                if (inputManager.isTriggered("ToggleCamera"))
+                {
+                    usingFlyCamera = !usingFlyCamera;
+                    activeCamera = usingFlyCamera
+                        ? static_cast<placeholder::input::Camera*>(flyCamera.get())
+                        : static_cast<placeholder::input::Camera*>(orbitCamera.get());
+                }
             }
 
-            if (inputManager.isTriggered("ToggleCamera"))
+            if (!editor.wantsMouse())
             {
-                usingFlyCamera = !usingFlyCamera;
-                activeCamera = usingFlyCamera
-                    ? static_cast<placeholder::input::Camera*>(flyCamera.get())
-                    : static_cast<placeholder::input::Camera*>(orbitCamera.get());
-                spdlog::info("Camera: {}", usingFlyCamera ? "fly" : "orbit");
+                activeCamera->update(inputManager, deltaTime);
             }
-
-            activeCamera->update(inputManager, deltaTime);
 
             int fbWidth = window.framebufferWidth();
             int fbHeight = window.framebufferHeight();
@@ -234,11 +375,18 @@ int main(int argc, char* argv[])
                 }
             }
 
+            debugDraw.clear();
+
+            editor.drawEditor(frameCtx, pipeline, inputManager, console);
+            editor.rebuildFontsForDpi(window.dpiScale());
+
             pipeline.execute(frameCtx);
 
             window.swapBuffers();
         }
 
+        editor.shutdown();
+        debugDraw.shutdown();
         pipeline.shutdown();
     }
     catch (const std::exception& e)

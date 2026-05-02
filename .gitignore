@@ -31,6 +31,9 @@ CMakeFiles/
 cmake_install.cmake
 CMakeUserPresets.json
 
+# ImGui layout state
+imgui.ini
+
 # OS files
 Thumbs.db
 desktop.ini

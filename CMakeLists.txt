@@ -92,6 +92,41 @@ target_compile_definitions(stb PRIVATE
 )
 add_library(stb::stb ALIAS stb)
 
+# FreeType — font glyph rasterization (used by ImGui FreeType backend)
+set(FT_DISABLE_ZLIB ON CACHE INTERNAL "")
+set(FT_DISABLE_BZIP2 ON CACHE INTERNAL "")
+set(FT_DISABLE_PNG ON CACHE INTERNAL "")
+set(FT_DISABLE_HARFBUZZ ON CACHE INTERNAL "")
+set(FT_DISABLE_BROTLI ON CACHE INTERNAL "")
+add_subdirectory(third_party/freetype SYSTEM)
+
+# Dear ImGui (docking branch) — compiled as a static library
+add_library(imgui STATIC
+    third_party/imgui/imgui.cpp
+    third_party/imgui/imgui_demo.cpp
+    third_party/imgui/imgui_draw.cpp
+    third_party/imgui/imgui_tables.cpp
+    third_party/imgui/imgui_widgets.cpp
+    third_party/imgui/backends/imgui_impl_glfw.cpp
+    third_party/imgui/backends/imgui_impl_opengl3.cpp
+    third_party/imgui/misc/freetype/imgui_freetype.cpp
+)
+target_include_directories(imgui PUBLIC
+    third_party/imgui
+    third_party/imgui/backends
+    third_party/imgui/misc/freetype
+)
+target_link_libraries(imgui PUBLIC glfw glad::glad freetype)
+target_compile_definitions(imgui PUBLIC
+    IMGUI_ENABLE_FREETYPE            # Use FreeType for font rasterization
+)
+add_library(imgui::imgui ALIAS imgui)
+
+# Tracy — real-time CPU/GPU profiler
+option(TRACY_ENABLE "Enable Tracy profiling" OFF)
+set(TRACY_ON_DEMAND ON CACHE INTERNAL "")
+add_subdirectory(third_party/tracy SYSTEM)
+
 # Engine modules (static libraries)
 add_subdirectory(engine/core)
 add_subdirectory(engine/platform)

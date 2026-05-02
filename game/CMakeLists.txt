@@ -8,6 +8,7 @@ target_link_libraries(placeholder_game PRIVATE
     Placeholder::Resources
     Placeholder::Renderer
     Placeholder::Input
+    Placeholder::Editor
 )
 
 target_compile_definitions(placeholder_game PRIVATE
