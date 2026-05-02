@@ -19,7 +19,7 @@
             { "action": "MoveRight",    "type": "hold", "key": "D" },
             { "action": "MoveUp",       "type": "hold", "key": "Space" },
             { "action": "MoveDown",     "type": "hold", "key": "LeftShift" },
-            { "action": "Look",         "type": "axis", "mouseButton": "Right" },
+            { "action": "Look",         "type": "axis", "mouseButton": "Right", "mouseButtons": ["Left"] },
             { "action": "ToggleWireframe", "type": "trigger", "key": "F1" },
             { "action": "ToggleCamera",    "type": "trigger", "key": "F2" }
         ]

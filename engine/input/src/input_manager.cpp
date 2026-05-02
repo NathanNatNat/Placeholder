@@ -92,6 +92,18 @@ void InputManager::update(platform::Window& window)
             down = window.isMouseButtonDown(state.binding.mouseButton);
         }
 
+        if (!down)
+        {
+            for (int btn : state.binding.mouseButtons)
+            {
+                if (window.isMouseButtonDown(btn))
+                {
+                    down = true;
+                    break;
+                }
+            }
+        }
+
         state.pressedThisFrame = down && !state.wasHeld;
         state.held = down;
         state.wasHeld = down;
@@ -181,6 +193,19 @@ void InputManager::loadBindings(const core::Config& config)
             else
             {
                 core::getLogger("input")->warn("Unknown mouse button: {}", btnName);
+            }
+        }
+
+        if (entry.contains("mouseButtons"))
+        {
+            for (const auto& btn : entry["mouseButtons"])
+            {
+                std::string btnName = btn.get<std::string>();
+                auto it = MOUSE_NAME_TO_GLFW.find(btnName);
+                if (it != MOUSE_NAME_TO_GLFW.end())
+                {
+                    binding.mouseButtons.push_back(it->second);
+                }
             }
         }
 

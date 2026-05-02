@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace placeholder::input
 {
@@ -18,8 +19,9 @@ struct ActionBinding
 {
     std::string action;
     ActionType type = ActionType::Trigger;
-    int key = -1;          ///< GLFW key code, or -1 if unbound.
-    int mouseButton = -1;  ///< GLFW mouse button, or -1 if unbound.
+    int key = -1;                       ///< GLFW key code, or -1 if unbound.
+    int mouseButton = -1;               ///< Primary GLFW mouse button, or -1 if unbound.
+    std::vector<int> mouseButtons;      ///< Additional mouse buttons that also activate this action.
 };
 
 } // namespace placeholder::input
