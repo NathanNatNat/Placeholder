@@ -6,6 +6,7 @@ add_library(placeholder_core STATIC
     src/file_watcher.cpp
     src/allocators.cpp
     src/job_system.cpp
+    src/console.cpp
 )
 
 target_include_directories(placeholder_core PUBLIC
