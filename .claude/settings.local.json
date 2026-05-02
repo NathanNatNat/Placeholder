@@ -7,7 +7,9 @@
       "Bash(./build/debug/game/Debug/placeholder_game.exe)",
       "Bash(rm -rf build)",
       "Bash(cmake --preset=default)",
-      "Bash(./build/game/Debug/placeholder_game.exe)"
+      "Bash(./build/game/Debug/placeholder_game.exe)",
+      "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target all -- 2>&1 | Select-Object -First 50)",
+      "PowerShell(& \"C:\\\\Program Files\\\\CMake\\\\bin\\\\cmake.EXE\" --build D:/Repositories/Placeholder/build --config Debug --target ALL_BUILD 2>&1)"
     ]
   }
 }
