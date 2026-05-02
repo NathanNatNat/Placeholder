@@ -4,6 +4,9 @@ cmake-build-*/
 out/
 x64/
 
+# Log files
+*.log
+
 # IDE files
 .vs/
 .vscode/

@@ -86,6 +86,21 @@ The following systems have working C++ implementations ready for migration:
 
 ---
 
+## Build Scripts
+
+All build scripts live in `scripts/` and handle MSVC environment setup automatically via `setup_msvc.bat` (uses `vswhere.exe` to locate Visual Studio). The build output directory is `out/build/`.
+
+| Script | Usage | Description |
+|---|---|---|
+| `scripts\clean.bat` | `scripts\clean.bat` | Delete `out/build/` |
+| `scripts\configure.bat` | `scripts\configure.bat [debug\|release\|relwithdebinfo]` | Run CMake configure (defaults to debug) |
+| `scripts\build.bat` | `scripts\build.bat [debug\|release\|relwithdebinfo]` | Build the project (defaults to debug) |
+| `scripts\run.bat` | `scripts\run.bat [args...]` | Run the game executable, passing all arguments through |
+
+**Claude Code:** Use these scripts instead of invoking cmake directly. Run them via `cmd /c "cd /d D:\Repositories\Placeholder && scripts\build.bat"` or equivalent.
+
+---
+
 ## Workflow Conventions
 
 ### Before Writing Code

@@ -11,7 +11,7 @@
             "displayName": "Windows MSVC — Debug",
             "description": "Windows x64, MSVC, Debug (default)",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/out/build",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_C_COMPILER": "cl",
