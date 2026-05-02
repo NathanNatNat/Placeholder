@@ -134,6 +134,12 @@ static void registerConsoleCommands(placeholder::core::Console& console,
             console.clearOutput();
             return "";
         });
+
+    console.registerCommand("help", "List all commands, or show help for a specific command",
+        [&console](const std::vector<std::string>& args) -> std::string
+        {
+            return console.helpText(args.empty() ? "" : args[0]);
+        });
 }
 
 int main(int argc, char* argv[])
