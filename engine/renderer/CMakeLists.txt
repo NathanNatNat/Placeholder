@@ -7,6 +7,12 @@ add_library(placeholder_renderer STATIC
     src/vertex_array.cpp
     src/uniform_buffer.cpp
     src/forward_pipeline.cpp
+    src/texture.cpp
+    src/texture_loader.cpp
+    src/mesh.cpp
+    src/mesh_loader.cpp
+    src/material.cpp
+    src/skybox.cpp
 )
 add_library(Placeholder::Renderer ALIAS placeholder_renderer)
 
@@ -25,6 +31,12 @@ target_sources(placeholder_renderer
             include/renderer/shader_preprocessor.h
             include/renderer/shader_manager.h
             include/renderer/forward_pipeline.h
+            include/renderer/texture.h
+            include/renderer/texture_loader.h
+            include/renderer/mesh.h
+            include/renderer/mesh_loader.h
+            include/renderer/material.h
+            include/renderer/skybox.h
 )
 
 target_link_libraries(placeholder_renderer PUBLIC
@@ -33,4 +45,7 @@ target_link_libraries(placeholder_renderer PUBLIC
     Placeholder::Resources
     glad::glad
     glm::glm
+    stb::stb
+    webp
+    assimp::assimp
 )

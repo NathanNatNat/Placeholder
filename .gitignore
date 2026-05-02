@@ -17,6 +17,7 @@ x64/
 
 # Binaries and objects
 *.obj
+!assets/**/*.obj
 *.exe
 *.dll
 *.lib

@@ -5,6 +5,7 @@ add_executable(placeholder_game
 target_link_libraries(placeholder_game PRIVATE
     Placeholder::Core
     Placeholder::Platform
+    Placeholder::Resources
     Placeholder::Renderer
     Placeholder::Input
 )

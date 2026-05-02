@@ -58,6 +58,40 @@ add_library(glad STATIC third_party/glad/src/gl.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
 add_library(glad::glad ALIAS glad)
 
+# Assimp — 3D model importing (glTF, OBJ, FBX)
+set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_SAMPLES OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE INTERNAL "")
+set(ASSIMP_INSTALL OFF CACHE INTERNAL "")
+set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "")
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE INTERNAL "")
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE INTERNAL "")
+set(ASSIMP_BUILD_ZLIB ON CACHE INTERNAL "")
+add_subdirectory(third_party/assimp SYSTEM)
+
+# libwebp — WebP image decoding/encoding
+set(WEBP_BUILD_ANIM_UTILS OFF CACHE INTERNAL "")
+set(WEBP_BUILD_CWEBP OFF CACHE INTERNAL "")
+set(WEBP_BUILD_DWEBP OFF CACHE INTERNAL "")
+set(WEBP_BUILD_GIF2WEBP OFF CACHE INTERNAL "")
+set(WEBP_BUILD_IMG2WEBP OFF CACHE INTERNAL "")
+set(WEBP_BUILD_VWEBP OFF CACHE INTERNAL "")
+set(WEBP_BUILD_WEBPINFO OFF CACHE INTERNAL "")
+set(WEBP_BUILD_LIBWEBPMUX OFF CACHE INTERNAL "")
+set(WEBP_BUILD_WEBPMUX OFF CACHE INTERNAL "")
+set(WEBP_BUILD_EXTRAS OFF CACHE INTERNAL "")
+add_subdirectory(third_party/libwebp SYSTEM)
+
+# stb — image loading/writing (header-only, needs one implementation TU)
+add_library(stb STATIC third_party/stb_impl.cpp)
+target_include_directories(stb PUBLIC third_party/stb)
+target_compile_definitions(stb PRIVATE
+    STBI_WINDOWS_UTF8          # Use UTF-8 file paths on Windows
+    _CRT_SECURE_NO_WARNINGS    # Suppress MSVC deprecation warnings in stb
+)
+add_library(stb::stb ALIAS stb)
+
 # Engine modules (static libraries)
 add_subdirectory(engine/core)
 add_subdirectory(engine/platform)
@@ -75,6 +109,7 @@ add_subdirectory(game)
 # Tests
 if(PLACEHOLDER_BUILD_TESTS)
     add_subdirectory(engine/core/tests)
+    add_subdirectory(engine/resources/tests)
     add_subdirectory(tests/integration)
     add_subdirectory(tests/render)
 endif()

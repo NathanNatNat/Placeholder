@@ -3,8 +3,15 @@
 #include "render_types.h"
 #include "shader_program.h"
 #include "vertex_array.h"
+#include "material.h"
+#include "mesh.h"
+#include "skybox.h"
+#include "texture.h"
+
+#include <glm/mat4x4.hpp>
 
 #include <memory>
+#include <vector>
 
 namespace placeholder::renderer
 {
@@ -12,18 +19,26 @@ namespace placeholder::renderer
 class OpenGLRenderDevice;
 class ShaderManager;
 
+/// A renderable object submitted to the pipeline each frame.
+struct RenderItem
+{
+    Mesh* mesh = nullptr;
+    Material* material = nullptr;
+    glm::mat4 modelMatrix{1.0f};
+    int subMeshIndex = -1;
+};
+
 /// Hardcoded forward rendering pipeline.
 ///
 /// Executes a fixed sequence of passes each frame:
 /// clear -> geometry -> skybox -> debug -> ImGui.
-/// Stub passes log once and return until their systems are implemented.
 class ForwardPipeline
 {
 public:
     ForwardPipeline(OpenGLRenderDevice& device, ShaderManager& shaderManager);
     ~ForwardPipeline();
 
-    /// Create GPU resources (shaders, triangle VAO, etc.).
+    /// Create GPU resources (shaders, default geometry).
     void initialize();
 
     /// Execute one frame of the pipeline.
@@ -32,7 +47,13 @@ public:
     /// Release GPU resources.
     void shutdown();
 
-    /// Toggle wireframe rendering (F1 key in the demo).
+    /// Submit a renderable for this frame's geometry pass.
+    void submit(const RenderItem& item);
+
+    /// Set the skybox cubemap texture.
+    void setSkyboxTexture(Texture* cubemap);
+
+    /// Toggle wireframe rendering.
     bool wireframeEnabled = false;
 
 private:
@@ -47,6 +68,11 @@ private:
 
     std::unique_ptr<VertexArray> m_triangleVao;
     std::unique_ptr<ShaderProgram> m_triangleShader;
+    std::unique_ptr<ShaderProgram> m_meshShader;
+    std::unique_ptr<ShaderProgram> m_meshAlphaTestShader;
+    std::unique_ptr<Skybox> m_skybox;
+
+    std::vector<RenderItem> m_renderQueue;
 
     bool m_stubsLogged = false;
 };

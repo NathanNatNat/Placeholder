@@ -1,5 +1,6 @@
 #include "renderer/forward_pipeline.h"
 #include "renderer/opengl_render_device.h"
+#include "renderer/render_state.h"
 #include "renderer/shader_manager.h"
 
 #include "core/logging.h"
@@ -29,7 +30,6 @@ void ForwardPipeline::initialize()
 
     m_triangleVao = std::make_unique<VertexArray>(m_device);
 
-    // Interleaved vertex data: position (vec3) + color (vec3)
     float vertices[] = {
         -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
          0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,
@@ -39,6 +39,12 @@ void ForwardPipeline::initialize()
     m_triangleVao->setVertexData(vertices, sizeof(vertices));
     m_triangleVao->setAttribute(0, 3, VertexAttribType::Float, 24, 0);
     m_triangleVao->setAttribute(1, 3, VertexAttribType::Float, 24, 12);
+
+    m_meshShader = m_shaderManager.createProgram("mesh");
+    m_meshAlphaTestShader = m_shaderManager.createProgram("mesh", {{"ALPHA_TEST", "1"}});
+
+    m_skybox = std::make_unique<Skybox>(m_device, m_shaderManager);
+    m_skybox->initialize();
 
     logger->info("Forward pipeline initialized");
 }
@@ -54,13 +60,31 @@ void ForwardPipeline::execute(const FrameContext& ctx)
     debugPass(ctx);
     imguiPass(ctx);
 
+    m_renderQueue.clear();
+
     m_device.endFrame();
 }
 
 void ForwardPipeline::shutdown()
 {
+    m_skybox.reset();
+    m_meshAlphaTestShader.reset();
+    m_meshShader.reset();
     m_triangleShader.reset();
     m_triangleVao.reset();
+}
+
+void ForwardPipeline::submit(const RenderItem& item)
+{
+    m_renderQueue.push_back(item);
+}
+
+void ForwardPipeline::setSkyboxTexture(Texture* cubemap)
+{
+    if (m_skybox)
+    {
+        m_skybox->setTexture(cubemap);
+    }
 }
 
 void ForwardPipeline::clearPass(const FrameContext& /*ctx*/)
@@ -71,24 +95,82 @@ void ForwardPipeline::clearPass(const FrameContext& /*ctx*/)
 
 void ForwardPipeline::geometryPass(const FrameContext& ctx)
 {
-    m_device.setDepthTest(true);
-    m_device.setDepthWrite(true);
-    m_device.setCullMode(CullMode::None);
-    m_device.setBlendEnabled(false);
-
     if (wireframeEnabled)
     {
         m_device.setPolygonMode(PolygonMode::Line);
     }
+
+    if (!m_renderQueue.empty())
+    {
+        glm::vec3 lightDir = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.5f));
+        glm::vec3 lightColor{1.0f, 0.98f, 0.95f};
+        glm::vec3 ambientColor{0.15f, 0.15f, 0.2f};
+
+        for (const auto& item : m_renderQueue)
+        {
+            if (!item.mesh || !item.material)
+            {
+                continue;
+            }
+
+            RenderStateDesc state = item.material->buildRenderState();
+            applyRenderState(m_device, state);
+
+            if (wireframeEnabled)
+            {
+                m_device.setPolygonMode(PolygonMode::Line);
+            }
+
+            ShaderProgram* shader = item.material->shader;
+            if (!shader)
+            {
+                shader = (item.material->blendMode == BlendMode::AlphaTest)
+                    ? m_meshAlphaTestShader.get()
+                    : m_meshShader.get();
+            }
+            shader->bind();
+            shader->setUniformMat4("u_model", glm::value_ptr(item.modelMatrix));
+            shader->setUniformMat4("u_view", glm::value_ptr(ctx.viewMatrix));
+            shader->setUniformMat4("u_projection", glm::value_ptr(ctx.projectionMatrix));
+            shader->setUniformVec3("u_diffuseColor", &item.material->diffuseColor.x);
+            shader->setUniform("u_opacity", item.material->opacity);
+            shader->setUniformVec3("u_lightDir", &lightDir.x);
+            shader->setUniformVec3("u_lightColor", &lightColor.x);
+            shader->setUniformVec3("u_ambientColor", &ambientColor.x);
+
+            if (item.material->blendMode == BlendMode::AlphaTest)
+            {
+                shader->setUniform("u_alphaThreshold", item.material->alphaTestThreshold);
+            }
+
+            if (item.material->diffuseTexture)
+            {
+                item.material->diffuseTexture->bind(m_device, 0);
+            }
+            shader->setUniform("u_diffuseTexture", 0);
+
+            if (item.subMeshIndex >= 0)
+            {
+                item.mesh->drawSubMesh(static_cast<size_t>(item.subMeshIndex));
+            }
+            else
+            {
+                item.mesh->drawAll();
+            }
+        }
+    }
     else
     {
-        m_device.setPolygonMode(PolygonMode::Fill);
-    }
+        m_device.setDepthTest(true);
+        m_device.setDepthWrite(true);
+        m_device.setCullMode(CullMode::None);
+        m_device.setBlendEnabled(false);
 
-    m_triangleShader->bind();
-    m_triangleShader->setUniformMat4("u_view", glm::value_ptr(ctx.viewMatrix));
-    m_triangleShader->setUniformMat4("u_projection", glm::value_ptr(ctx.projectionMatrix));
-    m_triangleVao->drawArrays(PrimitiveTopology::Triangles, 0, 3);
+        m_triangleShader->bind();
+        m_triangleShader->setUniformMat4("u_view", glm::value_ptr(ctx.viewMatrix));
+        m_triangleShader->setUniformMat4("u_projection", glm::value_ptr(ctx.projectionMatrix));
+        m_triangleVao->drawArrays(PrimitiveTopology::Triangles, 0, 3);
+    }
 
     if (wireframeEnabled)
     {
@@ -96,12 +178,12 @@ void ForwardPipeline::geometryPass(const FrameContext& ctx)
     }
 }
 
-void ForwardPipeline::skyboxPass(const FrameContext& /*ctx*/)
+void ForwardPipeline::skyboxPass(const FrameContext& ctx)
 {
-    if (!m_stubsLogged)
+    if (m_skybox)
     {
-        auto logger = core::getLogger("renderer");
-        logger->trace("Skybox pass: stub");
+        m_skybox->render(glm::value_ptr(ctx.viewMatrix),
+                         glm::value_ptr(ctx.projectionMatrix));
     }
 }
 

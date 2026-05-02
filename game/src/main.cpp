@@ -5,6 +5,11 @@
 #include "renderer/shader_manager.h"
 #include "renderer/forward_pipeline.h"
 #include "renderer/render_types.h"
+#include "renderer/texture.h"
+#include "renderer/texture_loader.h"
+#include "renderer/mesh.h"
+#include "renderer/mesh_loader.h"
+#include "renderer/material.h"
 #include "input/input_manager.h"
 #include "input/fly_camera.h"
 #include "input/orbit_camera.h"
@@ -12,11 +17,14 @@
 
 #include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdlib>
 #include <exception>
 #include <memory>
 #include <string>
+#include <vector>
 
 int main(int argc, char* argv[])
 {
@@ -44,9 +52,57 @@ int main(int argc, char* argv[])
             std::string(PLACEHOLDER_ROOT_DIR) + "/assets/shaders");
 
         shaderManager.registerShader("triangle", {"triangle.vert", "triangle.frag"});
+        shaderManager.registerShader("mesh", {"mesh.vert", "mesh.frag"});
+        shaderManager.registerShader("skybox", {"skybox.vert", "skybox.frag"});
 
         placeholder::renderer::ForwardPipeline pipeline(renderDevice, shaderManager);
         pipeline.initialize();
+
+        placeholder::renderer::TextureLoader textureLoader(renderDevice);
+        placeholder::renderer::MeshLoader meshLoader(renderDevice);
+
+        auto whiteTexture = textureLoader.createWhiteTexture();
+
+        std::unique_ptr<placeholder::renderer::Mesh> loadedMesh;
+        std::vector<placeholder::renderer::Material> materials;
+        std::vector<std::unique_ptr<placeholder::renderer::Texture>> loadedTextures;
+
+        std::string modelPath = config.get<std::string>("model", "");
+
+        if (!modelPath.empty())
+        {
+            auto model = meshLoader.loadFromFile(modelPath);
+            if (model.mesh)
+            {
+                loadedMesh = std::move(model.mesh);
+
+                for (const auto& loadedMat : model.materials)
+                {
+                    placeholder::renderer::Material mat;
+                    mat.diffuseColor = loadedMat.diffuseColor;
+                    mat.opacity = loadedMat.opacity;
+                    mat.diffuseTexture = whiteTexture.get();
+
+                    if (!loadedMat.diffuseTexturePath.empty())
+                    {
+                        auto tex = textureLoader.loadFromFile(loadedMat.diffuseTexturePath);
+                        if (tex)
+                        {
+                            mat.diffuseTexture = tex.get();
+                            loadedTextures.push_back(std::move(tex));
+                        }
+                    }
+
+                    if (loadedMat.opacity < 1.0f)
+                    {
+                        mat.blendMode = placeholder::renderer::BlendMode::AlphaBlend;
+                        mat.depthWrite = false;
+                    }
+
+                    materials.push_back(mat);
+                }
+            }
+        }
 
         placeholder::input::InputManager inputManager;
         inputManager.initialize(config, window);
@@ -106,6 +162,25 @@ int main(int argc, char* argv[])
             frameCtx.deltaTime = deltaTime;
             frameCtx.viewMatrix = activeCamera->getViewMatrix();
             frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(aspect);
+
+            if (loadedMesh)
+            {
+                for (size_t i = 0; i < loadedMesh->subMeshCount(); ++i)
+                {
+                    placeholder::renderer::RenderItem item;
+                    item.mesh = loadedMesh.get();
+                    item.modelMatrix = glm::mat4(1.0f);
+                    item.subMeshIndex = static_cast<int>(i);
+
+                    uint32_t matIdx = loadedMesh->subMesh(i).materialIndex;
+                    if (matIdx < materials.size())
+                    {
+                        item.material = &materials[matIdx];
+                    }
+
+                    pipeline.submit(item);
+                }
+            }
 
             pipeline.execute(frameCtx);
 
