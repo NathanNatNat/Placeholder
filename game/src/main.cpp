@@ -5,11 +5,17 @@
 #include "renderer/shader_manager.h"
 #include "renderer/forward_pipeline.h"
 #include "renderer/render_types.h"
+#include "input/input_manager.h"
+#include "input/fly_camera.h"
+#include "input/orbit_camera.h"
+#include "input/camera.h"
 
+#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 
 #include <cstdlib>
 #include <exception>
+#include <memory>
 #include <string>
 
 int main(int argc, char* argv[])
@@ -42,35 +48,64 @@ int main(int argc, char* argv[])
         placeholder::renderer::ForwardPipeline pipeline(renderDevice, shaderManager);
         pipeline.initialize();
 
-        window.setKeyCallback([&window, &pipeline](int key, int action, int /*mods*/)
-        {
-            if (action != GLFW_PRESS)
-            {
-                return;
-            }
+        placeholder::input::InputManager inputManager;
+        inputManager.initialize(config, window);
 
-            if (key == GLFW_KEY_ESCAPE)
+        auto flyCamera = std::make_unique<placeholder::input::FlyCamera>();
+        auto orbitCamera = std::make_unique<placeholder::input::OrbitCamera>();
+        placeholder::input::Camera* activeCamera = flyCamera.get();
+        bool usingFlyCamera = true;
+
+        window.setKeyCallback([&window](int key, int action, int /*mods*/)
+        {
+            if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
             {
                 window.requestClose();
             }
-            else if (key == GLFW_KEY_F11)
+            else if (action == GLFW_PRESS && key == GLFW_KEY_F11)
             {
                 window.toggleFullscreen();
             }
-            else if (key == GLFW_KEY_F1)
+        });
+
+        double lastTime = glfwGetTime();
+
+        while (!window.shouldClose())
+        {
+            double currentTime = glfwGetTime();
+            float deltaTime = static_cast<float>(currentTime - lastTime);
+            lastTime = currentTime;
+
+            window.pollEvents();
+            inputManager.update(window);
+
+            if (inputManager.isTriggered("ToggleWireframe"))
             {
                 pipeline.wireframeEnabled = !pipeline.wireframeEnabled;
                 spdlog::info("Wireframe: {}", pipeline.wireframeEnabled ? "on" : "off");
             }
-        });
 
-        while (!window.shouldClose())
-        {
-            window.pollEvents();
+            if (inputManager.isTriggered("ToggleCamera"))
+            {
+                usingFlyCamera = !usingFlyCamera;
+                activeCamera = usingFlyCamera
+                    ? static_cast<placeholder::input::Camera*>(flyCamera.get())
+                    : static_cast<placeholder::input::Camera*>(orbitCamera.get());
+                spdlog::info("Camera: {}", usingFlyCamera ? "fly" : "orbit");
+            }
+
+            activeCamera->update(inputManager, deltaTime);
+
+            int fbWidth = window.framebufferWidth();
+            int fbHeight = window.framebufferHeight();
+            float aspect = fbHeight > 0 ? static_cast<float>(fbWidth) / static_cast<float>(fbHeight) : 1.0f;
 
             placeholder::renderer::FrameContext frameCtx;
-            frameCtx.viewportWidth = window.framebufferWidth();
-            frameCtx.viewportHeight = window.framebufferHeight();
+            frameCtx.viewportWidth = fbWidth;
+            frameCtx.viewportHeight = fbHeight;
+            frameCtx.deltaTime = deltaTime;
+            frameCtx.viewMatrix = activeCamera->getViewMatrix();
+            frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(aspect);
 
             pipeline.execute(frameCtx);
 

@@ -4,6 +4,8 @@
 
 #include "core/logging.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace placeholder::renderer
 {
 
@@ -67,7 +69,7 @@ void ForwardPipeline::clearPass(const FrameContext& /*ctx*/)
     m_device.clear(true, true, false);
 }
 
-void ForwardPipeline::geometryPass(const FrameContext& /*ctx*/)
+void ForwardPipeline::geometryPass(const FrameContext& ctx)
 {
     m_device.setDepthTest(true);
     m_device.setDepthWrite(true);
@@ -84,6 +86,8 @@ void ForwardPipeline::geometryPass(const FrameContext& /*ctx*/)
     }
 
     m_triangleShader->bind();
+    m_triangleShader->setUniformMat4("u_view", glm::value_ptr(ctx.viewMatrix));
+    m_triangleShader->setUniformMat4("u_projection", glm::value_ptr(ctx.projectionMatrix));
     m_triangleVao->drawArrays(PrimitiveTopology::Triangles, 0, 3);
 
     if (wireframeEnabled)

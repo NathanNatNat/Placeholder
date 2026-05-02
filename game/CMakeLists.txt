@@ -6,6 +6,7 @@ target_link_libraries(placeholder_game PRIVATE
     Placeholder::Core
     Placeholder::Platform
     Placeholder::Renderer
+    Placeholder::Input
 )
 
 target_compile_definitions(placeholder_game PRIVATE

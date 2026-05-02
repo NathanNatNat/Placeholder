@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/mat4x4.hpp>
+
 #include <cstdint>
 #include <string>
 
@@ -102,6 +104,8 @@ struct FrameContext
     int viewportWidth = 0;
     int viewportHeight = 0;
     float deltaTime = 0.0f;
+    glm::mat4 viewMatrix{1.0f};
+    glm::mat4 projectionMatrix{1.0f};
 };
 
 } // namespace placeholder::renderer
