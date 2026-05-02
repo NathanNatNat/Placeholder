@@ -10,7 +10,7 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 - [x] Phase 1: Core Systems
 - [x] Phase 2: Platform & Window
 - [x] Phase 3: Renderer Foundation
-- [ ] Phase 4: Input & Camera
+- [x] Phase 4: Input & Camera
 - [ ] Phase 5: Testing Infrastructure
 - [ ] Phase 6: Asset Pipeline Foundation
 - [ ] Phase 7: ImGui Editor Shell
