@@ -80,6 +80,8 @@ private:
 
     int m_viewportWidth = 0;
     int m_viewportHeight = 0;
+    float m_viewportScreenX = 0.0f;
+    float m_viewportScreenY = 0.0f;
     bool m_viewportHovered = false;
 
     static constexpr float BASE_FONT_SIZE = 16.0f;

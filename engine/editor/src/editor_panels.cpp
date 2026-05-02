@@ -96,17 +96,17 @@ void drawCameraInfoPanel(const renderer::FrameContext& /*ctx*/,
     ImGui::End();
 }
 
-void drawPerformanceOverlay(const renderer::FrameContext& ctx)
+void drawPerformanceOverlay(const renderer::FrameContext& ctx,
+                            float vpX, float vpY, float vpW, float vpH)
 {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration
                            | ImGuiWindowFlags_AlwaysAutoResize
                            | ImGuiWindowFlags_NoFocusOnAppearing
-                           | ImGuiWindowFlags_NoNav;
+                           | ImGuiWindowFlags_NoNav
+                           | ImGuiWindowFlags_NoMove;
 
     const float padding = 10.0f;
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    ImVec2 pos(viewport->WorkPos.x + viewport->WorkSize.x - padding,
-               viewport->WorkPos.y + padding);
+    ImVec2 pos(vpX + vpW - padding, vpY + padding);
     ImVec2 pivot(1.0f, 0.0f);
     ImGui::SetNextWindowPos(pos, ImGuiCond_Always, pivot);
     ImGui::SetNextWindowBgAlpha(0.6f);

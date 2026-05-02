@@ -26,6 +26,8 @@ void drawCameraInfoPanel(const renderer::FrameContext& ctx,
                          input::InputManager& inputManager);
 
 /// Performance overlay — FPS, frame time graph, memory, resource counts.
-void drawPerformanceOverlay(const renderer::FrameContext& ctx);
+/// Positioned in the top-right corner of the given viewport rectangle.
+void drawPerformanceOverlay(const renderer::FrameContext& ctx,
+                            float vpX, float vpY, float vpW, float vpH);
 
 } // namespace placeholder::editor

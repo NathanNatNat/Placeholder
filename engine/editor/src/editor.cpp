@@ -108,9 +108,12 @@ void Editor::drawEditor(const renderer::FrameContext& ctx,
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         if (ImGui::Begin(ICON_FA_DESKTOP " Viewport", &m_showViewport))
         {
+            ImVec2 contentPos = ImGui::GetCursorScreenPos();
             ImVec2 size = ImGui::GetContentRegionAvail();
             m_viewportWidth = static_cast<int>(size.x);
             m_viewportHeight = static_cast<int>(size.y);
+            m_viewportScreenX = contentPos.x;
+            m_viewportScreenY = contentPos.y;
 
             GLuint tex = pipeline.sceneColorTexture();
             if (tex != 0 && m_viewportWidth > 0 && m_viewportHeight > 0)
@@ -143,7 +146,9 @@ void Editor::drawEditor(const renderer::FrameContext& ctx,
     }
     if (m_showPerformance)
     {
-        drawPerformanceOverlay(ctx);
+        drawPerformanceOverlay(ctx, m_viewportScreenX, m_viewportScreenY,
+                               static_cast<float>(m_viewportWidth),
+                               static_cast<float>(m_viewportHeight));
     }
 
     s_console.draw(console);
