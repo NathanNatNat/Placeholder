@@ -4,6 +4,7 @@
 add_library(placeholder_wowlib STATIC
     src/wowlib.cpp
 )
+add_library(Placeholder::WoWLib ALIAS placeholder_wowlib)
 
 target_include_directories(placeholder_wowlib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include

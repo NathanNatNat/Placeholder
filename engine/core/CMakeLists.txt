@@ -8,9 +8,20 @@ add_library(placeholder_core STATIC
     src/job_system.cpp
     src/console.cpp
 )
+add_library(Placeholder::Core ALIAS placeholder_core)
 
-target_include_directories(placeholder_core PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_sources(placeholder_core
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES
+            include/core/logging.h
+            include/core/config.h
+            include/core/file_io.h
+            include/core/file_watcher.h
+            include/core/allocators.h
+            include/core/job_system.h
+            include/core/console.h
 )
 
 target_link_libraries(placeholder_core PUBLIC

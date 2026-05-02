@@ -28,6 +28,7 @@ x64/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+CMakeUserPresets.json
 
 # OS files
 Thumbs.db

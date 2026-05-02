@@ -1,9 +1,5 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.31)
 project(Placeholder VERSION 0.1.0 LANGUAGES C CXX)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enforce Windows x64 only
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -28,25 +24,25 @@ if(NOT MSVC)
     message(FATAL_ERROR "Placeholder requires MSVC. Use Visual Studio Build Tools or Visual Studio.")
 endif()
 
-# MSVC compile options
-add_compile_options(/W4 /utf-8 /permissive-)
+include(CTest)
 
-# Third-party dependencies
-add_subdirectory(third_party/spdlog)
+# Third-party dependencies (SYSTEM suppresses warnings from these targets)
+add_subdirectory(third_party/spdlog SYSTEM)
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
-add_subdirectory(third_party/json)
+add_subdirectory(third_party/json SYSTEM)
 
 set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "")
 set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "")
 set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "")
 set(GLFW_INSTALL OFF CACHE INTERNAL "")
-add_subdirectory(third_party/glfw)
+add_subdirectory(third_party/glfw SYSTEM)
 
 # GLAD2 — OpenGL 4.6 Core loader (generated)
 add_library(glad STATIC third_party/glad/src/gl.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
+add_library(glad::glad ALIAS glad)
 
 # Engine modules (static libraries)
 add_subdirectory(engine/core)

@@ -1,13 +1,18 @@
 add_library(placeholder_platform STATIC
     src/window.cpp
 )
+add_library(Placeholder::Platform ALIAS placeholder_platform)
 
-target_include_directories(placeholder_platform PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_sources(placeholder_platform
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES
+            include/platform/window.h
 )
 
 target_link_libraries(placeholder_platform PUBLIC
-    placeholder_core
+    Placeholder::Core
     glfw
-    glad
+    glad::glad
 )

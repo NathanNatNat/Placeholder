@@ -8,14 +8,28 @@ add_library(placeholder_renderer STATIC
     src/uniform_buffer.cpp
     src/forward_pipeline.cpp
 )
+add_library(Placeholder::Renderer ALIAS placeholder_renderer)
 
-target_include_directories(placeholder_renderer PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_sources(placeholder_renderer
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES
+            include/renderer/render_types.h
+            include/renderer/render_device.h
+            include/renderer/render_state.h
+            include/renderer/opengl_render_device.h
+            include/renderer/shader_program.h
+            include/renderer/vertex_array.h
+            include/renderer/uniform_buffer.h
+            include/renderer/shader_preprocessor.h
+            include/renderer/shader_manager.h
+            include/renderer/forward_pipeline.h
 )
 
 target_link_libraries(placeholder_renderer PUBLIC
-    placeholder_core
-    placeholder_platform
-    placeholder_resources
-    glad
+    Placeholder::Core
+    Placeholder::Platform
+    Placeholder::Resources
+    glad::glad
 )

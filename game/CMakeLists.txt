@@ -3,9 +3,9 @@ add_executable(placeholder_game
 )
 
 target_link_libraries(placeholder_game PRIVATE
-    placeholder_core
-    placeholder_platform
-    placeholder_renderer
+    Placeholder::Core
+    Placeholder::Platform
+    Placeholder::Renderer
 )
 
 target_compile_definitions(placeholder_game PRIVATE

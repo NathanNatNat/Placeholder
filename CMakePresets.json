@@ -1,17 +1,19 @@
 {
-    "version": 6,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 20,
+        "minor": 31,
         "patch": 0
     },
     "configurePresets": [
         {
             "name": "windows-msvc-debug",
+            "$comment": "Base preset — all others inherit from this",
             "displayName": "Windows MSVC — Debug",
             "description": "Windows x64, MSVC, Debug (default)",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "toolchainFile": "${sourceDir}/cmake/toolchains/windows-msvc-x64.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_C_COMPILER": "cl",

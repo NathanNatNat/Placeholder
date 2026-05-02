@@ -186,6 +186,10 @@ Placeholder/
 ├── .gitignore
 ├── .gitmodules
 │
+├── cmake/                       # CMake support files
+│   └── toolchains/
+│       └── windows-msvc-x64.cmake  # MSVC x64 toolchain (C++ standard, compiler flags)
+│
 ├── engine/                      # Engine source code
 │   ├── core/                    # Core systems
 │   │   ├── include/core/        # Public headers
@@ -573,12 +577,59 @@ Test data (sample WoW files, reference images) lives in `tests/data/`.
 
 ## Build System: CMake
 
+### Philosophy: Pragmatic, Declarative CMake
+
+CMakeLists.txt files should **describe** the project (targets, sources, dependencies), not **implement** build logic. Avoid variables, loops, conditionals, and platform-specific branching in CMakeLists — those belong in toolchain files or presets. The builder controls settings like the C++ standard and build type, not the project.
+
+### Toolchain File
+
+Compiler-specific settings live in `cmake/toolchains/windows-msvc-x64.cmake`, not in CMakeLists.txt:
+- **C++ standard** (`CMAKE_CXX_STANDARD 20`) — set here so all targets (including dependencies) use the same standard, avoiding ABI incompatibilities
+- **Compiler flags** (`/W4 /utf-8 /permissive-`) — set via `CMAKE_CXX_FLAGS_INIT` so they're applied consistently
+- **Debug info format** (`CMAKE_MSVC_DEBUG_INFORMATION_FORMAT`) — use the first-class CMake variable instead of raw `/Zi` flags
+- **Linker selection** (`CMAKE_LINKER_TYPE`) — ready to switch to `LLD` for faster link times (commented out by default)
+
+The presets in `CMakePresets.json` reference this toolchain file automatically. The build script (`scripts\build.ps1`) uses the presets, so everything chains together. When adding Linux support, add a new toolchain file (e.g., `linux-gcc.cmake`) and corresponding presets — no CMakeLists changes needed.
+
+### CMake Conventions
+
+- **Minimum version:** `cmake_minimum_required(VERSION 3.31)` — enables `FILE_SET HEADERS`, `CODEGEN` target, preset `$comment`, and fast FetchContent
+- **Alias targets:** Every engine module defines a `Placeholder::` alias (e.g., `Placeholder::Core`, `Placeholder::Renderer`). Always use alias names in `target_link_libraries` — they provide early error detection for typos vs. silent linker failures
+- **Header file sets:** Modules with public headers use `target_sources(... FILE_SET HEADERS ...)` instead of manual `target_include_directories`. This declares headers in one place and enables automatic install support
+- **Test target:** `include(CTest)` is in the root CMakeLists so `ctest --test-dir <build>` always works, even with zero tests registered
+- **No `CMAKE_CXX_STANDARD` in CMakeLists** — this is set by the toolchain file. Do not add it back
+- **No `add_compile_options` in CMakeLists** — compiler flags come from the toolchain file
+- **No `CMAKE_BUILD_TYPE` in CMakeLists** — this is set by the presets or the builder. Do not set it in the project
+- **`SYSTEM` on third-party subdirectories:** All `add_subdirectory()` calls for third-party dependencies use the `SYSTEM` keyword (CMake 3.25+) to treat their headers as system headers and suppress compiler warnings from dependency code
+- **`CMakeUserPresets.json` is gitignored** — this file is for developer-specific local presets. The project never provides it
+
+### Modern CMake Preferences
+
+When adding new CMake code, prefer these modern approaches over older alternatives:
+
+| Prefer | Over | Why |
+|---|---|---|
+| `target_sources(FILE_SET HEADERS)` | `target_include_directories` for public headers | Declares headers once, enables install |
+| `CMAKE_MSVC_DEBUG_INFORMATION_FORMAT` | Raw `/Zi` `/Z7` flags | First-class CMake variable (3.25+) |
+| `CMAKE_MSVC_RUNTIME_LIBRARY` | Raw `/MD` `/MT` flags | First-class CMake variable (3.15+) |
+| `CMAKE_LINKER_TYPE` | Manual linker path flags | First-class linker selection (3.29+) |
+| `CMAKE_COMPILE_WARNING_AS_ERROR` | Raw `/WX` `-Werror` flags | Portable across compilers (3.24+) |
+| `add_custom_command(CODEGEN)` | Plain `add_custom_command` for code gen | Enables `codegen` build target (3.31+) |
+| `cmake_path()` | `get_filename_component()` | Modern path manipulation (3.20+) |
+| Toolchain files | `set(CMAKE_CXX_STANDARD)` in CMakeLists | Builder controls the standard, not the project |
+| Presets | CLI flags for common configurations | Reproducible, documented, IDE-integrated |
+| `add_subdirectory(dep SYSTEM)` | `add_subdirectory(dep)` for third-party code | Treats dep headers as system headers, suppresses warnings (3.25+) |
+| `FetchContent` with `SYSTEM` | FetchContent without | Suppresses warnings from fetched deps (3.25+) |
+| `TRANSITIVE_COMPILE_PROPERTIES` | Manual property propagation | Custom properties propagate like built-ins (3.30+) |
+
+### Structure
+
 - Root `CMakeLists.txt` defines the project and adds subdirectories
 - Each engine module has its own `CMakeLists.txt` producing a static library
 - `wowlib` has a fully self-contained `CMakeLists.txt` with no engine dependencies
-- Third-party dependencies added via `add_subdirectory()` for submodules
+- Third-party dependencies added via `add_subdirectory(... SYSTEM)` for submodules
 - Assets are copied to the build output directory automatically
-- CMakePresets.json for MSVC x64 Debug, Release, and RelWithDebInfo
+- CMakePresets.json (schema version 10) for MSVC x64 Debug, Release, and RelWithDebInfo
 - **Windows x64 only** — enforce 64-bit architecture in CMake, reject non-x64 configurations
 - OpenSSL prebuilt DLLs copied to output directory at build time
 

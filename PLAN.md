@@ -72,8 +72,8 @@ Phase 10: Audio, Hot Reload & Polish 🔄🆕
 4. Create `LICENSE` file (MIT license)
 5. Create initial `TODO.md` listing all phases from this plan
 6. Write root `CMakeLists.txt`:
-   - `cmake_minimum_required(VERSION 3.20)`
-   - Project name, C++20 standard, MSVC x64 enforcement
+   - `cmake_minimum_required(VERSION 3.31)`
+   - Project name, MSVC x64 enforcement, toolchain file for C++20 standard and compiler flags
    - Subdirectory includes for each engine module and game
 7. Write `CMakePresets.json` with MSVC x64 presets for Debug, Release, RelWithDebInfo
 8. Write placeholder `CMakeLists.txt` for each engine module (empty static libs with placeholder `.cpp`)
