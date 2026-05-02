@@ -38,3 +38,14 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 - Tracy profiler submodule added (disabled by default, enable with -DTRACY_ENABLE=ON)
 - Console commands: wireframe, camera, reload, grid, axes, debug, demo, clear
 - ImGui input capture prevents game input when interacting with editor UI
+
+### Phase 8 Notes (In Progress)
+- Dependencies added: zlib (submodule), cpp-httplib (submodule), OpenSSL 3.3.2 (prebuilt DLLs)
+- DataBuffer: binary I/O class with endianness, zlib inflate/deflate, OpenSSL hashing
+- CASC system migrated: BLTE reader (lazy decompression, Salsa20 encryption), root/encoding parsing, local archive reading, CDN resolver
+- BLP texture decoder: palette, DXT1/3/5, BGRA encoding types
+- M2 loader: full MD21 chunk parsing (geometry, textures, materials, bones, collision), skin file parsing
+- WMO loader: root file parsing (materials, groups, doodads), group geometry extraction
+- WowScene: CASC-to-engine bridge (M2 loading, BLP textures, mesh conversion, material mapping)
+- WoW model shaders: hemisphere ambient + directional lighting, alpha test/blend variants
+- TODO: DB2/DBC full implementation, WMO rendering integration, ImGui WoW browser panel, render tests
