@@ -4,6 +4,7 @@ add_library(placeholder_core STATIC
     src/config.cpp
     src/file_io.cpp
     src/file_watcher.cpp
+    src/allocators.cpp
 )
 
 target_include_directories(placeholder_core PUBLIC
