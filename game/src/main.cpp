@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
         std::vector<std::unique_ptr<placeholder::renderer::Texture>> loadedTextures;
 
         std::string modelPath = config.get<std::string>("model",
-            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/Suzanne.obj");
+            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/models/Duck.glb");
 
         if (!modelPath.empty())
         {
@@ -84,7 +84,25 @@ int main(int argc, char* argv[])
                     mat.opacity = loadedMat.opacity;
                     mat.diffuseTexture = whiteTexture.get();
 
-                    if (!loadedMat.diffuseTexturePath.empty())
+                    if (loadedMat.embeddedTextureIndex >= 0
+                        && loadedMat.embeddedTextureIndex < static_cast<int>(model.embeddedTextures.size()))
+                    {
+                        const auto& embTex = model.embeddedTextures[loadedMat.embeddedTextureIndex];
+                        if (!embTex.data.empty())
+                        {
+                            placeholder::renderer::TextureDesc desc;
+                            desc.width = embTex.width;
+                            desc.height = embTex.height;
+                            desc.format = placeholder::renderer::TextureFormat::SRGBA8;
+                            auto tex = textureLoader.createFromData(desc, embTex.data.data());
+                            if (tex)
+                            {
+                                mat.diffuseTexture = tex.get();
+                                loadedTextures.push_back(std::move(tex));
+                            }
+                        }
+                    }
+                    else if (!loadedMat.diffuseTexturePath.empty())
                     {
                         auto tex = textureLoader.loadFromFile(loadedMat.diffuseTexturePath);
                         if (tex)
