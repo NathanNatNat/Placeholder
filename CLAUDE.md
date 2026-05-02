@@ -18,7 +18,7 @@ This document is the authoritative reference for Claude Code when working on the
 - **Platform:** Windows x64 only
 - **Compiler:** MSVC only (Visual Studio Build Tools / Visual Studio)
 - **C++ Standard:** C++20 (C++17 is the minimum compatibility baseline — use stable C++20 features like concepts, `std::format`, designated initializers, and `std::span`, but avoid immature features like modules and coroutines)
-- **IDE:** Visual Studio (File → Open → CMake… workflow with CMakePresets.json)
+- **IDE:** VS Code (with CMake Tools + C/C++ extensions; CMakePresets.json is auto-detected)
 
 ---
 
@@ -88,27 +88,28 @@ The following systems have working C++ implementations ready for migration:
 
 ## Building
 
-The project uses CMake with presets defined in `CMakePresets.json`. Visual Studio opens the project directly via **File → Open → CMake…** and handles configure/build through its CMake integration.
+The project uses CMake with presets defined in `CMakePresets.json`. In VS Code, open the project folder and the **CMake Tools** extension auto-detects the presets — select `Windows MSVC — Debug` from the status bar kit picker to configure, then build with **F7** or the build button.
 
-**From Developer PowerShell** (for Claude Code or manual terminal use):
+**From any terminal (recommended — handles MSVC environment automatically):**
 
 ```powershell
-# Configure (debug by default)
-cmake --preset=windows-msvc-debug
+# Debug build (configure + build in one step)
+pwsh scripts\build.ps1
 
-# Build
-cmake --build --preset=debug
+# Other configs
+pwsh scripts\build.ps1 -Config release
+pwsh scripts\build.ps1 -Config relwithdebinfo
+
+# Clean then build (use when switching configs or after broken configure)
+pwsh scripts\build.ps1 -Clean
 
 # Run
-./out/build/debug/game/PlaceholderGame.exe
-
-# Clean
-Remove-Item -Recurse -Force out/build
+.\out\build\windows-msvc-debug\game\placeholder_game.exe
 ```
 
-The build output directory is `out/build/`. The MSVC environment is already set up in Developer PowerShell — no setup scripts needed.
+`scripts\build.ps1` activates the MSVC x64 environment itself via vswhere + VsDevCmd.bat, so it works from any PowerShell session — no Developer PowerShell required. It also strips conflicting GCC toolchains (Strawberry Perl, MSYS2, MinGW) from PATH before cmake runs.
 
-**Claude Code:** Use the cmake commands above directly from the terminal. The Developer PowerShell environment provides MSVC tools automatically.
+**Claude Code:** Always use `pwsh scripts\build.ps1` to build. Do not call cmake directly — without the MSVC environment the configure will fail.
 
 ---
 
