@@ -12,7 +12,7 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 - [x] Phase 3: Renderer Foundation
 - [x] Phase 4: Input & Camera
 - [x] Phase 5: Testing Infrastructure
-- [ ] Phase 6: Asset Pipeline Foundation
+- [x] Phase 6: Asset Pipeline Foundation
 - [ ] Phase 7: ImGui Editor Shell
 - [ ] Phase 8: WoW Library Migration
 - [ ] Phase 9: Skeletal Animation
@@ -23,4 +23,8 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 
 ## Code Markers
 
-_No markers yet — project is freshly initialized._
+### Phase 6 Notes
+- Model loading via `--model=path/to/file` command-line argument
+- Skybox requires 6 cubemap face images to activate (currently no default skybox textures shipped)
+- WebP texture loading available but untested with real WebP files
+- No async resource loading yet — all loading is synchronous on the main thread
