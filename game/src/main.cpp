@@ -1,11 +1,16 @@
 #include "core/logging.h"
 #include "core/config.h"
 #include "platform/window.h"
+#include "renderer/opengl_render_device.h"
+#include "renderer/shader_manager.h"
+#include "renderer/forward_pipeline.h"
+#include "renderer/render_types.h"
 
 #include <spdlog/spdlog.h>
 
 #include <cstdlib>
 #include <exception>
+#include <string>
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +32,17 @@ int main(int argc, char* argv[])
 
         placeholder::platform::Window window(windowConfig);
 
-        window.setKeyCallback([&window](int key, int action, int /*mods*/)
+        placeholder::renderer::OpenGLRenderDevice renderDevice;
+        placeholder::renderer::ShaderManager shaderManager(
+            renderDevice,
+            std::string(PLACEHOLDER_ROOT_DIR) + "/assets/shaders");
+
+        shaderManager.registerShader("triangle", {"triangle.vert", "triangle.frag"});
+
+        placeholder::renderer::ForwardPipeline pipeline(renderDevice, shaderManager);
+        pipeline.initialize();
+
+        window.setKeyCallback([&window, &pipeline](int key, int action, int /*mods*/)
         {
             if (action != GLFW_PRESS)
             {
@@ -42,18 +57,27 @@ int main(int argc, char* argv[])
             {
                 window.toggleFullscreen();
             }
+            else if (key == GLFW_KEY_F1)
+            {
+                pipeline.wireframeEnabled = !pipeline.wireframeEnabled;
+                spdlog::info("Wireframe: {}", pipeline.wireframeEnabled ? "on" : "off");
+            }
         });
 
         while (!window.shouldClose())
         {
             window.pollEvents();
 
-            glViewport(0, 0, window.framebufferWidth(), window.framebufferHeight());
-            glClearColor(0.39f, 0.58f, 0.93f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            placeholder::renderer::FrameContext frameCtx;
+            frameCtx.viewportWidth = window.framebufferWidth();
+            frameCtx.viewportHeight = window.framebufferHeight();
+
+            pipeline.execute(frameCtx);
 
             window.swapBuffers();
         }
+
+        pipeline.shutdown();
     }
     catch (const std::exception& e)
     {
