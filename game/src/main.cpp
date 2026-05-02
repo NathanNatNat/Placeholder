@@ -128,8 +128,8 @@ int main(int argc, char* argv[])
 
         auto flyCamera = std::make_unique<placeholder::input::FlyCamera>();
         auto orbitCamera = std::make_unique<placeholder::input::OrbitCamera>();
-        placeholder::input::Camera* activeCamera = flyCamera.get();
-        bool usingFlyCamera = true;
+        placeholder::input::Camera* activeCamera = orbitCamera.get();
+        bool usingFlyCamera = false;
 
         window.setKeyCallback([&window](int key, int action, int /*mods*/)
         {
