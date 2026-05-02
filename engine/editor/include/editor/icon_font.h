@@ -50,3 +50,4 @@
 #define ICON_FA_GAUGE_HIGH     "\xef\x98\xa5"
 #define ICON_FA_MEMORY         "\xef\x94\xb8"
 #define ICON_FA_CROSSHAIRS     "\xef\x81\x9b"
+#define ICON_FA_DESKTOP        "\xef\x84\x88"

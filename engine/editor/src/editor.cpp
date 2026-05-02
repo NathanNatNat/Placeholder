@@ -13,7 +13,10 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
+
+#include <cstdint>
 
 namespace placeholder::editor
 {
@@ -74,14 +77,14 @@ void Editor::drawEditor(const renderer::FrameContext& ctx,
                          input::InputManager& inputManager,
                          core::Console& console)
 {
-    ImGuiID dockspaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(),
-        ImGuiDockNodeFlags_PassthruCentralNode);
+    ImGuiID dockspaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
     (void)dockspaceId;
 
     if (ImGui::BeginMainMenuBar())
     {
         if (ImGui::BeginMenu("View"))
         {
+            ImGui::MenuItem("Viewport", nullptr, &m_showViewport);
             ImGui::MenuItem("Scene", nullptr, &m_showScene);
             ImGui::MenuItem("Properties", nullptr, &m_showProperties);
             ImGui::MenuItem("Asset Browser", nullptr, &m_showAssetBrowser);
@@ -97,6 +100,29 @@ void Editor::drawEditor(const renderer::FrameContext& ctx,
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
+    }
+
+    m_viewportHovered = false;
+    if (m_showViewport)
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        if (ImGui::Begin(ICON_FA_DESKTOP " Viewport", &m_showViewport))
+        {
+            ImVec2 size = ImGui::GetContentRegionAvail();
+            m_viewportWidth = static_cast<int>(size.x);
+            m_viewportHeight = static_cast<int>(size.y);
+
+            GLuint tex = pipeline.sceneColorTexture();
+            if (tex != 0 && m_viewportWidth > 0 && m_viewportHeight > 0)
+            {
+                ImGui::Image(static_cast<ImTextureID>(static_cast<uintptr_t>(tex)),
+                             size, ImVec2(0, 1), ImVec2(1, 0));
+            }
+
+            m_viewportHovered = ImGui::IsWindowHovered();
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
     }
 
     if (m_showScene)
@@ -161,7 +187,7 @@ bool Editor::wantsKeyboard() const
 
 bool Editor::wantsMouse() const
 {
-    return ImGui::GetIO().WantCaptureMouse;
+    return ImGui::GetIO().WantCaptureMouse && !m_viewportHovered;
 }
 
 void Editor::loadFonts(float dpiScale)

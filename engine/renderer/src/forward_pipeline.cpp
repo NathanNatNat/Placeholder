@@ -52,12 +52,19 @@ void ForwardPipeline::initialize()
 void ForwardPipeline::execute(const FrameContext& ctx)
 {
     m_device.beginFrame(ctx);
+
+    m_sceneFbo.resize(ctx.viewportWidth, ctx.viewportHeight);
+    m_sceneFbo.bind();
     m_device.setViewport(0, 0, ctx.viewportWidth, ctx.viewportHeight);
 
     clearPass(ctx);
     geometryPass(ctx);
     skyboxPass(ctx);
     debugPass(ctx);
+
+    Framebuffer::unbind();
+    m_device.invalidateStateCache();
+
     imguiPass(ctx);
 
     m_renderQueue.clear();
@@ -85,6 +92,11 @@ void ForwardPipeline::setSkyboxTexture(Texture* cubemap)
     {
         m_skybox->setTexture(cubemap);
     }
+}
+
+GLuint ForwardPipeline::sceneColorTexture() const
+{
+    return m_sceneFbo.colorTexture();
 }
 
 void ForwardPipeline::clearPass(const FrameContext& /*ctx*/)

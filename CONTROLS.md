@@ -41,7 +41,7 @@ All key bindings above are suppressed when an ImGui text field has focus (e.g. w
 The menu bar at the top of the screen has two menus:
 
 **View** — Toggle editor panels on/off:
-- Scene, Properties, Asset Browser, Renderer Stats, Performance, Console (~), ImGui Demo
+- Viewport, Scene, Properties, Asset Browser, Renderer Stats, Performance, Console (~), ImGui Demo
 
 **Debug** — Toggle debug features:
 - Wireframe (F1)

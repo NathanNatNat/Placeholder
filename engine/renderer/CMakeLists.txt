@@ -13,6 +13,7 @@ add_library(placeholder_renderer STATIC
     src/mesh_loader.cpp
     src/material.cpp
     src/skybox.cpp
+    src/framebuffer.cpp
 )
 add_library(Placeholder::Renderer ALIAS placeholder_renderer)
 
@@ -37,6 +38,7 @@ target_sources(placeholder_renderer
             include/renderer/mesh_loader.h
             include/renderer/material.h
             include/renderer/skybox.h
+            include/renderer/framebuffer.h
 )
 
 target_link_libraries(placeholder_renderer PUBLIC

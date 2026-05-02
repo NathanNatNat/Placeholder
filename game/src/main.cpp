@@ -347,14 +347,29 @@ int main(int argc, char* argv[])
 
             int fbWidth = window.framebufferWidth();
             int fbHeight = window.framebufferHeight();
-            float aspect = fbHeight > 0 ? static_cast<float>(fbWidth) / static_cast<float>(fbHeight) : 1.0f;
 
             placeholder::renderer::FrameContext frameCtx;
             frameCtx.viewportWidth = fbWidth;
             frameCtx.viewportHeight = fbHeight;
             frameCtx.deltaTime = deltaTime;
             frameCtx.viewMatrix = activeCamera->getViewMatrix();
-            frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(aspect);
+            frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(
+                fbHeight > 0 ? static_cast<float>(fbWidth) / static_cast<float>(fbHeight) : 1.0f);
+
+            debugDraw.clear();
+
+            editor.drawEditor(frameCtx, pipeline, inputManager, console);
+            editor.rebuildFontsForDpi(window.dpiScale());
+
+            int vpWidth = editor.viewportWidth();
+            int vpHeight = editor.viewportHeight();
+            if (vpWidth > 0 && vpHeight > 0)
+            {
+                frameCtx.viewportWidth = vpWidth;
+                frameCtx.viewportHeight = vpHeight;
+                float vpAspect = static_cast<float>(vpWidth) / static_cast<float>(vpHeight);
+                frameCtx.projectionMatrix = activeCamera->getProjectionMatrix(vpAspect);
+            }
 
             if (loadedMesh)
             {
@@ -374,11 +389,6 @@ int main(int argc, char* argv[])
                     pipeline.submit(item);
                 }
             }
-
-            debugDraw.clear();
-
-            editor.drawEditor(frameCtx, pipeline, inputManager, console);
-            editor.rebuildFontsForDpi(window.dpiScale());
 
             pipeline.execute(frameCtx);
 

@@ -7,6 +7,7 @@
 #include "mesh.h"
 #include "skybox.h"
 #include "texture.h"
+#include "framebuffer.h"
 
 #include <glm/mat4x4.hpp>
 
@@ -54,6 +55,10 @@ public:
     /// Set the skybox cubemap texture.
     void setSkyboxTexture(Texture* cubemap);
 
+    /// The scene color texture rendered to the offscreen FBO.
+    /// Display this in an ImGui viewport panel via ImGui::Image().
+    GLuint sceneColorTexture() const;
+
     /// Toggle wireframe rendering.
     bool wireframeEnabled = false;
 
@@ -80,6 +85,8 @@ private:
     std::unique_ptr<Skybox> m_skybox;
 
     std::vector<RenderItem> m_renderQueue;
+
+    Framebuffer m_sceneFbo;
 };
 
 } // namespace placeholder::renderer

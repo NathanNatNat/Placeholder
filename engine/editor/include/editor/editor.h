@@ -54,6 +54,13 @@ public:
     /// @return true if ImGui wants to capture mouse input (e.g. hovering over a window).
     bool wantsMouse() const;
 
+    /// Size of the viewport panel's content region (scene render target size).
+    int viewportWidth() const { return m_viewportWidth; }
+    int viewportHeight() const { return m_viewportHeight; }
+
+    /// True when the mouse cursor is over the viewport panel.
+    bool isViewportHovered() const { return m_viewportHovered; }
+
     bool showDemoWindow = false;
 
 private:
@@ -64,11 +71,16 @@ private:
     bool m_initialized = false;
     float m_currentDpiScale = 1.0f;
 
+    bool m_showViewport = true;
     bool m_showScene = true;
     bool m_showProperties = true;
     bool m_showAssetBrowser = false;
     bool m_showRendererStats = true;
     bool m_showPerformance = true;
+
+    int m_viewportWidth = 0;
+    int m_viewportHeight = 0;
+    bool m_viewportHovered = false;
 
     static constexpr float BASE_FONT_SIZE = 16.0f;
 };
