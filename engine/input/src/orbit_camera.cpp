@@ -24,7 +24,8 @@ void OrbitCamera::update(const InputManager& input, float /*deltaTime*/)
     glm::vec2 scroll = input.getScrollDelta();
     if (scroll.y != 0.0f)
     {
-        m_distance -= scroll.y * m_zoomSpeed;
+        float zoomFactor = 1.0f - scroll.y * m_zoomSpeed * 0.1f;
+        m_distance *= zoomFactor;
         m_distance = std::clamp(m_distance, m_minDistance, m_maxDistance);
     }
 }

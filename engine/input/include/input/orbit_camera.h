@@ -24,6 +24,7 @@ public:
 
     void setDistance(float distance) { m_distance = distance; }
     void setOrbitSensitivity(float sensitivity) { m_orbitSensitivity = sensitivity; }
+    void setDistanceLimits(float minDist, float maxDist) { m_minDistance = minDist; m_maxDistance = maxDist; }
 
 private:
     glm::vec3 m_target{0.0f, 0.0f, 0.0f};

@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
 
             orbitCamera->setTarget(center);
             orbitCamera->setDistance(viewDist);
+            orbitCamera->setDistanceLimits(radius * 0.1f, radius * 20.0f);
 
             flyCamera->setPosition(center + glm::vec3(0.0f, radius * 0.5f, viewDist));
         }
