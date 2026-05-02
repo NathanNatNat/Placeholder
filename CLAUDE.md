@@ -18,7 +18,7 @@ This document is the authoritative reference for Claude Code when working on the
 - **Platform:** Windows x64 only
 - **Compiler:** MSVC only (Visual Studio Build Tools / Visual Studio)
 - **C++ Standard:** C++20 (C++17 is the minimum compatibility baseline — use stable C++20 features like concepts, `std::format`, designated initializers, and `std::span`, but avoid immature features like modules and coroutines)
-- **IDE:** VS Code + CMake Tools (ensure CMake presets and tasks work cleanly)
+- **IDE:** Visual Studio (File → Open → CMake… workflow with CMakePresets.json)
 
 ---
 
@@ -86,18 +86,29 @@ The following systems have working C++ implementations ready for migration:
 
 ---
 
-## Build Scripts
+## Building
 
-All build scripts live in `scripts/` and handle MSVC environment setup automatically via `setup_msvc.bat` (uses `vswhere.exe` to locate Visual Studio). The build output directory is `out/build/`.
+The project uses CMake with presets defined in `CMakePresets.json`. Visual Studio opens the project directly via **File → Open → CMake…** and handles configure/build through its CMake integration.
 
-| Script | Usage | Description |
-|---|---|---|
-| `scripts\clean.bat` | `scripts\clean.bat` | Delete `out/build/` |
-| `scripts\configure.bat` | `scripts\configure.bat [debug\|release\|relwithdebinfo]` | Run CMake configure (defaults to debug) |
-| `scripts\build.bat` | `scripts\build.bat [debug\|release\|relwithdebinfo]` | Build the project (defaults to debug) |
-| `scripts\run.bat` | `scripts\run.bat [args...]` | Run the game executable, passing all arguments through |
+**From Developer PowerShell** (for Claude Code or manual terminal use):
 
-**Claude Code:** Use these scripts instead of invoking cmake directly. Run them via `cmd /c "cd /d D:\Repositories\Placeholder && scripts\build.bat"` or equivalent.
+```powershell
+# Configure (debug by default)
+cmake --preset=windows-msvc-debug
+
+# Build
+cmake --build --preset=debug
+
+# Run
+./out/build/debug/game/PlaceholderGame.exe
+
+# Clean
+Remove-Item -Recurse -Force out/build
+```
+
+The build output directory is `out/build/`. The MSVC environment is already set up in Developer PowerShell — no setup scripts needed.
+
+**Claude Code:** Use the cmake commands above directly from the terminal. The Developer PowerShell environment provides MSVC tools automatically.
 
 ---
 
