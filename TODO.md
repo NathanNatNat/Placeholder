@@ -25,6 +25,5 @@ Tracks all TODO/FIXME/HACK markers in the codebase, plus phase progress.
 
 ### Phase 6 Notes
 - Model loading via `--model=path/to/file` command-line argument
-- Skybox requires 6 cubemap face images to activate (currently no default skybox textures shipped)
 - WebP texture loading available but untested with real WebP files
 - No async resource loading yet — all loading is synchronous on the main thread

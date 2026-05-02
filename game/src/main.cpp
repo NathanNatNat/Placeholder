@@ -20,6 +20,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <array>
 #include <cstdlib>
 #include <exception>
 #include <memory>
@@ -62,6 +63,22 @@ int main(int argc, char* argv[])
         placeholder::renderer::MeshLoader meshLoader(renderDevice);
 
         auto whiteTexture = textureLoader.createWhiteTexture();
+
+        std::string skyboxDir = std::string(PLACEHOLDER_ROOT_DIR) + "/assets/textures/skybox/";
+        std::array<std::string, 6> skyboxFaces = {
+            skyboxDir + "right.jpg",
+            skyboxDir + "left.jpg",
+            skyboxDir + "top.jpg",
+            skyboxDir + "bottom.jpg",
+            skyboxDir + "front.jpg",
+            skyboxDir + "back.jpg"
+        };
+        auto skyboxTexture = textureLoader.loadCubemap(skyboxFaces);
+        if (skyboxTexture)
+        {
+            pipeline.setSkyboxTexture(skyboxTexture.get());
+            spdlog::info("Skybox loaded");
+        }
 
         std::unique_ptr<placeholder::renderer::Mesh> loadedMesh;
         std::vector<placeholder::renderer::Material> materials;
