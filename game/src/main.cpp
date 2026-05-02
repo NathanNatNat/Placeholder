@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
     spdlog::info("Placeholder Engine v0.1");
 
     placeholder::core::Config config;
-    config.loadFromFile("assets/config/engine.json");
+    config.loadFromFile(PLACEHOLDER_ROOT_DIR "/assets/config/engine.json");
     config.applyCommandLine(argc, argv);
 
     spdlog::info("Window: {}x{} \"{}\"",
