@@ -17,7 +17,7 @@ void OrbitCamera::update(const InputManager& input, float /*deltaTime*/)
     if (look.x != 0.0f || look.y != 0.0f)
     {
         m_yaw += look.x * m_orbitSensitivity;
-        m_pitch -= look.y * m_orbitSensitivity;
+        m_pitch += look.y * m_orbitSensitivity;
         m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
     }
 
