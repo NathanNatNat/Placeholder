@@ -1,5 +1,5 @@
 add_library(placeholder_platform STATIC
-    src/platform.cpp
+    src/window.cpp
 )
 
 target_include_directories(placeholder_platform PUBLIC
@@ -8,4 +8,6 @@ target_include_directories(placeholder_platform PUBLIC
 
 target_link_libraries(placeholder_platform PUBLIC
     placeholder_core
+    glfw
+    glad
 )

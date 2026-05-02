@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(Placeholder VERSION 0.1.0 LANGUAGES CXX)
+project(Placeholder VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -37,6 +37,16 @@ add_subdirectory(third_party/spdlog)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory(third_party/json)
+
+set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "")
+set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "")
+set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(GLFW_INSTALL OFF CACHE INTERNAL "")
+add_subdirectory(third_party/glfw)
+
+# GLAD2 — OpenGL 4.6 Core loader (generated)
+add_library(glad STATIC third_party/glad/src/gl.c)
+target_include_directories(glad PUBLIC third_party/glad/include)
 
 # Engine modules (static libraries)
 add_subdirectory(engine/core)
