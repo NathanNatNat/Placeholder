@@ -1,0 +1,4 @@
+{
+    "cmake.defaultBuildTarget": "placeholder_viewer",
+    "cmake.defaultLaunchTarget": "placeholder_viewer"
+}

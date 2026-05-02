@@ -9,7 +9,8 @@ x64/
 
 # IDE files
 .vs/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.user
 *.suo
 *.sln
