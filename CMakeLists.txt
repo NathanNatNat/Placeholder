@@ -7,7 +7,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Enforce Windows x64 only
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message(FATAL_ERROR "Placeholder requires a 64-bit build. Configure with -A x64.")
+    message(FATAL_ERROR
+        "Placeholder requires a 64-bit (x64) build.\n"
+        "  Ninja: run from an x64 Developer Command Prompt / PowerShell.\n"
+        "  Visual Studio: configure with -A x64 or use the x64 preset.\n"
+        "  Detected pointer size: ${CMAKE_SIZEOF_VOID_P} bytes (expected 8)."
+    )
+endif()
+
+if(MSVC AND NOT CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "x64"
+        AND NOT CMAKE_CXX_COMPILER_ARCHITECTURE_ID STREQUAL "X64")
+    message(FATAL_ERROR
+        "Placeholder requires the x64 MSVC toolchain.\n"
+        "  Detected compiler architecture: ${CMAKE_CXX_COMPILER_ARCHITECTURE_ID}\n"
+        "  Use an x64 Developer Command Prompt or select the x64 host/target toolset."
+    )
 endif()
 
 if(NOT MSVC)
