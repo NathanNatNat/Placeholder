@@ -58,6 +58,20 @@ add_library(glad STATIC third_party/glad/src/gl.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
 add_library(glad::glad ALIAS glad)
 
+# zlib — compression/decompression (BLTE, etc.) — must come before Assimp
+set(ZLIB_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+set(SKIP_INSTALL_ALL ON CACHE INTERNAL "")
+add_subdirectory(third_party/zlib SYSTEM)
+target_include_directories(zlibstatic PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib>
+)
+# Satisfy find_package(ZLIB) for cpp-httplib and Assimp
+set(ZLIB_FOUND TRUE CACHE BOOL "" FORCE)
+set(ZLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib;${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib" CACHE STRING "" FORCE)
+set(ZLIB_LIBRARY zlibstatic CACHE STRING "" FORCE)
+set(ZLIB_LIBRARIES zlibstatic CACHE STRING "" FORCE)
+
 # Assimp — 3D model importing (glTF, OBJ, FBX)
 set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
 set(ASSIMP_BUILD_TESTS OFF CACHE INTERNAL "")
@@ -67,7 +81,7 @@ set(ASSIMP_INSTALL OFF CACHE INTERNAL "")
 set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "")
 set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE INTERNAL "")
 set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE INTERNAL "")
-set(ASSIMP_BUILD_ZLIB ON CACHE INTERNAL "")
+set(ASSIMP_BUILD_ZLIB OFF CACHE INTERNAL "")
 add_subdirectory(third_party/assimp SYSTEM)
 
 # libwebp — WebP image decoding/encoding
@@ -121,6 +135,21 @@ target_compile_definitions(imgui PUBLIC
     IMGUI_ENABLE_FREETYPE            # Use FreeType for font rasterization
 )
 add_library(imgui::imgui ALIAS imgui)
+
+# OpenSSL — prebuilt Windows x64 DLLs (HTTPS + crypto hashing)
+add_subdirectory(third_party/openssl-prebuilt SYSTEM)
+
+# cpp-httplib — HTTP client for WoW CDN access (header-only, uses OpenSSL)
+set(HTTPLIB_COMPILE OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_TEST OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_INSTALL OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_USE_OPENSSL_IF_AVAILABLE ON CACHE BOOL "" FORCE)
+set(HTTPLIB_REQUIRE_OPENSSL ON CACHE BOOL "" FORCE)
+set(HTTPLIB_USE_ZLIB_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_REQUIRE_ZLIB OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_USE_MBEDTLS_IF_AVAILABLE OFF CACHE BOOL "" FORCE)
+set(HTTPLIB_REQUIRE_MBEDTLS OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/cpp-httplib SYSTEM)
 
 # Tracy — real-time CPU/GPU profiler
 option(TRACY_ENABLE "Enable Tracy profiling" OFF)
