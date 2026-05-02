@@ -1,7 +1,10 @@
-#include <cstdio>
+#include "core/logging.h"
+
+#include <spdlog/spdlog.h>
 
 int main()
 {
-    std::printf("Placeholder Engine v0.1\n");
+    placeholder::core::initLogging();
+    spdlog::info("Placeholder Engine v0.1");
     return 0;
 }

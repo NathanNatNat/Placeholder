@@ -17,6 +17,13 @@ endif()
 # MSVC compile options
 add_compile_options(/W4 /utf-8 /permissive-)
 
+# Third-party dependencies
+add_subdirectory(third_party/spdlog)
+
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
+add_subdirectory(third_party/json)
+
 # Engine modules (static libraries)
 add_subdirectory(engine/core)
 add_subdirectory(engine/platform)
